@@ -247,6 +247,8 @@ async function sendToGroups(groups, message, mediaPath, mediaType, onProgress) {
 }
 
 module.exports = {
+  createGroup,
+  addParticipantsToGroup,
   connectWhatsApp,
   setIO,
   getState,
@@ -256,3 +258,47 @@ module.exports = {
   clearAuthData,
   getSocket: () => sock
 };
+
+// ===== GROUP CREATION FUNCTIONS =====
+
+async function createGroup(name, participantNumbers) {
+  if (!sock || connectionState !== 'connected') {
+    throw new Error('WhatsApp not connected');
+  }
+  
+  // Format numbers to WhatsApp JIDs
+  const participants = participantNumbers.map(num => {
+    const clean = num.replace(/[^0-9]/g, '');
+    return clean + '@s.whatsapp.net';
+  });
+
+  try {
+    const result = await sock.groupCreate(name, participants);
+    return {
+      success: true,
+      groupId: result.id,
+      name: name,
+      participants: result.participants?.length || 0
+    };
+  } catch (err) {
+    throw new Error('Failed to create group: ' + err.message);
+  }
+}
+
+async function addParticipantsToGroup(groupId, participantNumbers) {
+  if (!sock || connectionState !== 'connected') {
+    throw new Error('WhatsApp not connected');
+  }
+
+  const participants = participantNumbers.map(num => {
+    const clean = num.replace(/[^0-9]/g, '');
+    return clean + '@s.whatsapp.net';
+  });
+
+  try {
+    const result = await sock.groupParticipantsUpdate(groupId, participants, 'add');
+    return result;
+  } catch (err) {
+    throw new Error('Failed to add participants: ' + err.message);
+  }
+}
