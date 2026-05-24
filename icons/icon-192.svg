@@ -1,0 +1,11 @@
+<svg width='192' height='192' xmlns='http://www.w3.org/2000/svg'>
+  <rect width='192' height='192' rx='40' fill='#0a0f1e'/>
+  <rect width='192' height='192' rx='40' fill='url(#g)'/>
+  <defs>
+    <radialGradient id='g' cx='30%' cy='30%'>
+      <stop offset='0%' stop-color='#00e676' stop-opacity='0.3'/>
+      <stop offset='100%' stop-color='#0a0f1e' stop-opacity='0'/>
+    </radialGradient>
+  </defs>
+  <text x='96' y='115' font-size='80' text-anchor='middle' fill='#00e676'>📡</text>
+</svg>

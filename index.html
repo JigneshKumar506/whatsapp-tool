@@ -1,0 +1,476 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+  <title>WA Broadcast Pro</title>
+  <meta name="theme-color" content="#0a0f1e" />
+  <meta name="apple-mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+  <meta name="apple-mobile-web-app-title" content="WA Broadcast" />
+  <link rel="manifest" href="/manifest.json" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;500;600;700;800&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet" />
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/4.7.4/socket.io.min.js"></script>
+  <link rel="stylesheet" href="/css/style.css" />
+</head>
+<body>
+
+<!-- LOGIN SCREEN -->
+<div id="login-screen" class="screen active">
+  <div class="login-bg">
+    <div class="login-orb orb1"></div>
+    <div class="login-orb orb2"></div>
+    <div class="login-orb orb3"></div>
+  </div>
+  <div class="login-box">
+    <div class="login-logo">
+      <div class="logo-icon">📡</div>
+      <h1>WA Broadcast<span>Pro</span></h1>
+      <p>Professional WhatsApp Broadcast Tool</p>
+    </div>
+    <div class="login-form">
+      <div class="input-group">
+        <label>Admin Password</label>
+        <input type="password" id="login-password" placeholder="Enter password" autocomplete="current-password" />
+      </div>
+      <button class="btn-primary btn-full" onclick="login()">
+        <span>Access Dashboard</span>
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
+      </button>
+      <p id="login-error" class="error-msg hidden">Invalid password. Try again.</p>
+    </div>
+  </div>
+</div>
+
+<!-- MAIN APP -->
+<div id="app-screen" class="screen">
+
+  <!-- SIDEBAR -->
+  <nav class="sidebar" id="sidebar">
+    <div class="sidebar-header">
+      <div class="brand">
+        <span class="brand-icon">📡</span>
+        <div>
+          <h2>WA Broadcast</h2>
+          <span>Pro</span>
+        </div>
+      </div>
+      <button class="sidebar-close" onclick="toggleSidebar()">✕</button>
+    </div>
+
+    <!-- WA Status -->
+    <div class="wa-status-card" id="wa-status-card">
+      <div class="wa-status-dot" id="wa-dot"></div>
+      <div class="wa-status-info">
+        <span class="wa-status-label" id="wa-status-label">Connecting...</span>
+        <span class="wa-status-sub" id="wa-status-sub">WhatsApp</span>
+      </div>
+      <button class="wa-qr-btn hidden" id="wa-qr-btn" onclick="showQR()">QR</button>
+    </div>
+
+    <div class="nav-section">
+      <span class="nav-label">MAIN</span>
+      <button class="nav-item active" onclick="showPage('dashboard')">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/></svg>
+        Dashboard
+      </button>
+      <button class="nav-item" onclick="showPage('send')">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="22" y1="2" x2="11" y2="13"/><polygon points="22 2 15 22 11 13 2 9 22 2"/></svg>
+        Send Message
+      </button>
+      <button class="nav-item" onclick="showPage('schedule')">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+        Schedule
+      </button>
+    </div>
+
+    <div class="nav-section">
+      <span class="nav-label">MANAGE</span>
+      <button class="nav-item" onclick="showPage('groups')">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
+        Groups
+        <span class="nav-badge" id="groups-badge">0</span>
+      </button>
+      <button class="nav-item" onclick="showPage('contacts')">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+        Contacts
+        <span class="nav-badge" id="contacts-badge">0</span>
+      </button>
+      <button class="nav-item" onclick="showPage('templates')">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/><polyline points="10 9 9 9 8 9"/></svg>
+        Templates
+      </button>
+    </div>
+
+    <div class="nav-section">
+      <span class="nav-label">REPORTS</span>
+      <button class="nav-item" onclick="showPage('history')">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg>
+        History & Reports
+      </button>
+      <button class="nav-item" onclick="showPage('settings')">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="3"/><path d="M19.07 4.93l-1.41 1.41M19.07 19.07l-1.41-1.41M4.93 4.93l1.41 1.41M4.93 19.07l1.41-1.41M12 2v2M12 20v2M2 12h2M20 12h2"/></svg>
+        Settings
+      </button>
+    </div>
+
+    <div class="sidebar-footer">
+      <button class="btn-logout" onclick="logoutApp()">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg>
+        Logout
+      </button>
+    </div>
+  </nav>
+
+  <!-- OVERLAY for mobile -->
+  <div class="sidebar-overlay" id="sidebar-overlay" onclick="toggleSidebar()"></div>
+
+  <!-- MAIN CONTENT -->
+  <main class="main-content">
+
+    <!-- TOP BAR -->
+    <header class="topbar">
+      <button class="menu-btn" onclick="toggleSidebar()">
+        <span></span><span></span><span></span>
+      </button>
+      <div class="topbar-title" id="page-title">Dashboard</div>
+      <div class="topbar-right">
+        <div class="wa-mini-status" id="wa-mini">
+          <div class="dot disconnected" id="mini-dot"></div>
+        </div>
+      </div>
+    </header>
+
+    <!-- PAGES -->
+
+    <!-- DASHBOARD -->
+    <div class="page active" id="page-dashboard">
+      <div class="page-header">
+        <h1>Dashboard</h1>
+        <p>Overview of your broadcast activity</p>
+      </div>
+
+      <div class="stats-grid">
+        <div class="stat-card green">
+          <div class="stat-icon">👥</div>
+          <div class="stat-info">
+            <span class="stat-num" id="stat-groups">0</span>
+            <span class="stat-label">Active Groups</span>
+          </div>
+        </div>
+        <div class="stat-card blue">
+          <div class="stat-icon">📱</div>
+          <div class="stat-info">
+            <span class="stat-num" id="stat-contacts">0</span>
+            <span class="stat-label">Total Contacts</span>
+          </div>
+        </div>
+        <div class="stat-card purple">
+          <div class="stat-icon">📨</div>
+          <div class="stat-info">
+            <span class="stat-num" id="stat-sent">0</span>
+            <span class="stat-label">Messages Sent</span>
+          </div>
+        </div>
+        <div class="stat-card orange">
+          <div class="stat-icon">⏰</div>
+          <div class="stat-info">
+            <span class="stat-num" id="stat-scheduled">0</span>
+            <span class="stat-label">Scheduled</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Quick Actions -->
+      <div class="section-title">Quick Actions</div>
+      <div class="quick-actions">
+        <button class="qa-btn" onclick="showPage('send')">
+          <div class="qa-icon">🚀</div>
+          <span>Send Now</span>
+        </button>
+        <button class="qa-btn" onclick="showPage('schedule')">
+          <div class="qa-icon">⏰</div>
+          <span>Schedule</span>
+        </button>
+        <button class="qa-btn" onclick="syncGroups()">
+          <div class="qa-icon">🔄</div>
+          <span>Sync Groups</span>
+        </button>
+        <button class="qa-btn" onclick="showPage('history')">
+          <div class="qa-icon">📊</div>
+          <span>Reports</span>
+        </button>
+      </div>
+
+      <!-- Recent Activity -->
+      <div class="section-title">Recent Activity</div>
+      <div class="recent-list" id="recent-history">
+        <div class="empty-state">No messages sent yet</div>
+      </div>
+    </div>
+
+    <!-- SEND MESSAGE -->
+    <div class="page" id="page-send">
+      <div class="page-header">
+        <h1>Send Message</h1>
+        <p>Broadcast to all or selected groups</p>
+      </div>
+
+      <!-- Send Progress -->
+      <div class="send-progress-card hidden" id="send-progress-card">
+        <div class="progress-header">
+          <span class="progress-title">📤 Sending...</span>
+          <span class="progress-count" id="progress-count">0 / 0</span>
+        </div>
+        <div class="progress-bar-wrap">
+          <div class="progress-bar" id="progress-bar" style="width:0%"></div>
+        </div>
+        <div class="progress-log" id="progress-log"></div>
+      </div>
+
+      <div class="card">
+        <!-- Target Groups -->
+        <div class="form-section">
+          <label class="form-label">Target Groups</label>
+          <div class="target-tabs">
+            <button class="target-tab active" id="tab-all" onclick="setTarget('all')">All Active Groups</button>
+            <button class="target-tab" id="tab-select" onclick="setTarget('select')">Select Groups</button>
+          </div>
+          <div class="group-selector hidden" id="group-selector">
+            <div class="group-search-wrap">
+              <input type="text" class="search-input" placeholder="Search groups..." oninput="filterSendGroups(this.value)" />
+            </div>
+            <div class="group-list" id="send-group-list"></div>
+          </div>
+          <div class="selected-info" id="selected-info">All active groups will receive this message</div>
+        </div>
+
+        <!-- Template Picker -->
+        <div class="form-section">
+          <label class="form-label">Use Template <span class="optional">(optional)</span></label>
+          <select class="form-select" id="template-picker" onchange="applyTemplate(this.value)">
+            <option value="">— Select a template —</option>
+          </select>
+        </div>
+
+        <!-- Message -->
+        <div class="form-section">
+          <label class="form-label">Message</label>
+          <textarea class="form-textarea" id="send-message" placeholder="Type your message here..." rows="5"></textarea>
+          <div class="char-count" id="char-count">0 characters</div>
+        </div>
+
+        <!-- Media Upload -->
+        <div class="form-section">
+          <label class="form-label">Attach Media <span class="optional">(optional)</span></label>
+          <div class="media-drop" id="media-drop" onclick="document.getElementById('media-input').click()">
+            <input type="file" id="media-input" hidden accept="image/*,video/*,audio/*,.pdf,.doc,.docx,.xls,.xlsx,.ppt,.pptx" onchange="handleMediaSelect(this)" />
+            <div class="media-drop-content" id="media-drop-content">
+              <div class="media-drop-icon">📎</div>
+              <p>Click to attach image, video, audio or document</p>
+              <span>Max 64MB</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Actions -->
+        <div class="form-actions">
+          <button class="btn-secondary" onclick="showSendTestConfirm()">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14.5 10c-.83 0-1.5-.67-1.5-1.5v-5c0-.83.67-1.5 1.5-1.5s1.5.67 1.5 1.5v5c0 .83-.67 1.5-1.5 1.5z"/><path d="M20.5 10H19V8.5c0-.83.67-1.5 1.5-1.5s1.5.67 1.5 1.5-.67 1.5-1.5 1.5z"/><path d="M9.5 14c.83 0 1.5.67 1.5 1.5v5c0 .83-.67 1.5-1.5 1.5S8 21.33 8 20.5v-5c0-.83.67-1.5 1.5-1.5z"/><path d="M3.5 14H5v1.5c0 .83-.67 1.5-1.5 1.5S2 16.33 2 15.5 2.67 14 3.5 14z"/><path d="M14 14.5c0-.83.67-1.5 1.5-1.5h5c.83 0 1.5.67 1.5 1.5s-.67 1.5-1.5 1.5h-5c-.83 0-1.5-.67-1.5-1.5z"/><path d="M15.5 19H14v1.5c0 .83.67 1.5 1.5 1.5s1.5-.67 1.5-1.5-.67-1.5-1.5-1.5z"/><path d="M10 9.5C10 8.67 9.33 8 8.5 8h-5C2.67 8 2 8.67 2 9.5S2.67 11 3.5 11h5c.83 0 1.5-.67 1.5-1.5z"/><path d="M8.5 5H10V3.5C10 2.67 9.33 2 8.5 2S7 2.67 7 3.5 7.67 5 8.5 5z"/></svg>
+            Test Send
+          </button>
+          <button class="btn-secondary" onclick="showScheduleModal()">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+            Schedule
+          </button>
+          <button class="btn-primary" onclick="confirmSend()">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="22" y1="2" x2="11" y2="13"/><polygon points="22 2 15 22 11 13 2 9 22 2"/></svg>
+            Send Now
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <!-- GROUPS -->
+    <div class="page" id="page-groups">
+      <div class="page-header">
+        <h1>Groups</h1>
+        <p>Manage your state-wise WhatsApp groups</p>
+      </div>
+      <div class="page-actions">
+        <button class="btn-primary" onclick="showAddGroupModal()">+ Add Group</button>
+        <button class="btn-secondary" onclick="syncGroups()">🔄 Sync from WA</button>
+      </div>
+      <div class="search-bar">
+        <input type="text" class="search-input" placeholder="Search groups..." oninput="filterGroups(this.value)" />
+      </div>
+      <div class="groups-list" id="groups-list">
+        <div class="loading">Loading groups...</div>
+      </div>
+    </div>
+
+    <!-- CONTACTS -->
+    <div class="page" id="page-contacts">
+      <div class="page-header">
+        <h1>Contacts</h1>
+        <p>Manage your 4000+ contacts</p>
+      </div>
+      <div class="page-actions">
+        <button class="btn-primary" onclick="showImportModal()">📤 Import CSV</button>
+        <button class="btn-secondary" onclick="showAddContactModal()">+ Add Contact</button>
+      </div>
+      <div class="contacts-stats" id="contacts-stats"></div>
+      <div class="contacts-list" id="contacts-list">
+        <div class="loading">Loading contacts...</div>
+      </div>
+    </div>
+
+    <!-- TEMPLATES -->
+    <div class="page" id="page-templates">
+      <div class="page-header">
+        <h1>Templates</h1>
+        <p>Save and reuse message templates</p>
+      </div>
+      <div class="page-actions">
+        <button class="btn-primary" onclick="showAddTemplateModal()">+ New Template</button>
+      </div>
+      <div class="templates-list" id="templates-list">
+        <div class="loading">Loading templates...</div>
+      </div>
+    </div>
+
+    <!-- SCHEDULE -->
+    <div class="page" id="page-schedule">
+      <div class="page-header">
+        <h1>Scheduled Messages</h1>
+        <p>Upcoming broadcasts</p>
+      </div>
+      <div class="scheduled-list" id="scheduled-list">
+        <div class="loading">Loading scheduled messages...</div>
+      </div>
+    </div>
+
+    <!-- HISTORY -->
+    <div class="page" id="page-history">
+      <div class="page-header">
+        <h1>History & Reports</h1>
+        <p>Track all sent broadcasts</p>
+      </div>
+      <div class="history-stats" id="history-stats"></div>
+      <div class="history-list" id="history-list">
+        <div class="loading">Loading history...</div>
+      </div>
+    </div>
+
+    <!-- SETTINGS -->
+    <div class="page" id="page-settings">
+      <div class="page-header">
+        <h1>Settings</h1>
+        <p>Configure your broadcast tool</p>
+      </div>
+      <div class="settings-list" id="settings-list">
+        <div class="card settings-card">
+          <div class="setting-item">
+            <div class="setting-info">
+              <label>Message Delay (ms)</label>
+              <p>Delay between each group message. Recommended: 10000ms (10 seconds)</p>
+            </div>
+            <input type="number" class="setting-input" id="setting-delay" value="10000" min="3000" max="30000" step="1000" />
+            <button class="btn-small" onclick="saveSetting('message_delay', document.getElementById('setting-delay').value)">Save</button>
+          </div>
+          <div class="setting-item">
+            <div class="setting-info">
+              <label>Daily Send Limit</label>
+              <p>Maximum groups to message per day for safety</p>
+            </div>
+            <input type="number" class="setting-input" id="setting-limit" value="200" min="10" max="500" />
+            <button class="btn-small" onclick="saveSetting('daily_limit', document.getElementById('setting-limit').value)">Save</button>
+          </div>
+          <div class="setting-item">
+            <div class="setting-info">
+              <label>WhatsApp Session</label>
+              <p>Disconnect and re-scan QR code</p>
+            </div>
+            <button class="btn-danger-small" onclick="logoutWA()">Logout WA</button>
+          </div>
+          <div class="setting-item">
+            <div class="setting-info">
+              <label>Change Password</label>
+              <p>Update admin password in .env file on server</p>
+            </div>
+            <span class="setting-note">Edit .env → ADMIN_PASSWORD</span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+  </main>
+</div>
+
+<!-- MODALS -->
+<div class="modal-overlay hidden" id="modal-overlay" onclick="closeModal()">
+  <div class="modal" id="modal" onclick="event.stopPropagation()">
+    <div class="modal-header">
+      <h3 id="modal-title">Modal</h3>
+      <button class="modal-close" onclick="closeModal()">✕</button>
+    </div>
+    <div class="modal-body" id="modal-body"></div>
+  </div>
+</div>
+
+<!-- QR MODAL -->
+<div class="modal-overlay hidden" id="qr-overlay">
+  <div class="modal qr-modal">
+    <div class="modal-header">
+      <h3>Scan QR Code</h3>
+      <button class="modal-close" onclick="document.getElementById('qr-overlay').classList.add('hidden')">✕</button>
+    </div>
+    <div class="modal-body qr-body">
+      <p>Open WhatsApp Business → Linked Devices → Link a Device</p>
+      <div id="qr-container">
+        <img id="qr-image" src="" alt="QR Code" />
+      </div>
+      <p class="qr-note">QR code expires in 60 seconds. It will auto-refresh.</p>
+    </div>
+  </div>
+</div>
+
+<!-- TOAST -->
+<div class="toast-container" id="toast-container"></div>
+
+<!-- CONFIRM DIALOG -->
+<div class="modal-overlay hidden" id="confirm-overlay">
+  <div class="modal confirm-modal">
+    <div class="modal-body">
+      <div class="confirm-icon" id="confirm-icon">⚠️</div>
+      <h3 id="confirm-title">Are you sure?</h3>
+      <p id="confirm-msg"></p>
+      <div class="confirm-actions">
+        <button class="btn-secondary" onclick="document.getElementById('confirm-overlay').classList.add('hidden')">Cancel</button>
+        <button class="btn-primary" id="confirm-ok">Confirm</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script src="/js/app.js"></script>
+<script>
+  // Register Service Worker (PWA)
+  if ('serviceWorker' in navigator) {
+    window.addEventListener('load', () => {
+      navigator.serviceWorker.register('/sw.js')
+        .then(reg => console.log('✅ SW registered:', reg.scope))
+        .catch(err => console.log('SW error:', err));
+    });
+  }
+
+  // Handle ?page= URL param
+  const urlParams = new URLSearchParams(window.location.search);
+  const startPage = urlParams.get('page');
+  if (startPage) {
+    window.addEventListener('app-ready', () => showPage(startPage));
+  }
+</script>
+</body>
+</html>
