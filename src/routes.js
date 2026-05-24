@@ -363,3 +363,28 @@ router.get('/dashboard', requireAuth, (req, res) => {
 });
 
 module.exports = { router, setSendIO };
+
+// ==================== GROUP CREATION FROM CSV ====================
+const { createGroupsFromCSVs } = require('./groupCreator');
+
+let isCreatingGroups = false;
+
+router.post('/groups/create-from-csv', requireAuth, upload.array('csvFiles', 20), async (req, res) => {
+  if (isCreatingGroups) return res.status(429).json({ error: 'Already creating groups, please wait' });
+  if (!req.files?.length) return res.status(400).json({ error: 'No CSV files uploaded' });
+
+  res.json({ success: true, message: 'Group creation started', total: req.files.length });
+
+  isCreatingGroups = true;
+  try {
+    const results = await createGroupsFromCSVs(req.files, sendIO);
+    console.log('Group creation complete:', results.length, 'groups');
+  } catch (err) {
+    console.error('Group creation error:', err.message);
+    if (sendIO) sendIO.emit('group-creation-error', { error: err.message });
+  } finally {
+    isCreatingGroups = false;
+    // Cleanup uploaded CSV files
+    req.files.forEach(f => { try { require('fs').unlinkSync(f.path); } catch(e){} });
+  }
+});
