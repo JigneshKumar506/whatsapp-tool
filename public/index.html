@@ -1,0 +1,1966 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+  <title>WA Broadcast Pro</title>
+  <meta name="theme-color" content="#0a0f1e" />
+  <meta name="apple-mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+  <meta name="apple-mobile-web-app-title" content="WA Broadcast" />
+  <link rel="manifest" href="/manifest.json" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;500;600;700;800&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet" />
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/4.7.4/socket.io.min.js"></script>
+  <style>/* ===== ROOT VARIABLES ===== */
+:root {
+  --bg: #0a0f1e;
+  --bg2: #111827;
+  --bg3: #1a2235;
+  --card: #141d2e;
+  --card2: #1e2a40;
+  --border: #1f2d45;
+  --text: #e8edf5;
+  --text2: #8b9ab5;
+  --text3: #5a6b85;
+  --green: #00e676;
+  --green-dim: rgba(0,230,118,0.12);
+  --blue: #448aff;
+  --blue-dim: rgba(68,138,255,0.12);
+  --purple: #ce93d8;
+  --purple-dim: rgba(206,147,216,0.12);
+  --orange: #ffb74d;
+  --orange-dim: rgba(255,183,77,0.12);
+  --red: #ef5350;
+  --red-dim: rgba(239,83,80,0.12);
+  --accent: #00e676;
+  --accent2: #448aff;
+  --radius: 14px;
+  --radius-sm: 8px;
+  --shadow: 0 8px 32px rgba(0,0,0,0.4);
+  --sidebar-w: 260px;
+  --topbar-h: 60px;
+  --font-head: 'Syne', sans-serif;
+  --font-body: 'DM Sans', sans-serif;
+  --transition: 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+/* ===== RESET ===== */
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+html, body { height: 100%; overflow: hidden; }
+body { font-family: var(--font-body); background: var(--bg); color: var(--text); font-size: 14px; -webkit-font-smoothing: antialiased; }
+button { cursor: pointer; border: none; outline: none; font-family: var(--font-body); }
+input, textarea, select { font-family: var(--font-body); outline: none; border: none; }
+a { text-decoration: none; color: inherit; }
+::-webkit-scrollbar { width: 4px; }
+::-webkit-scrollbar-track { background: transparent; }
+::-webkit-scrollbar-thumb { background: var(--border); border-radius: 4px; }
+
+/* ===== SCREENS ===== */
+.screen { position: fixed; inset: 0; display: none; }
+.screen.active { display: flex; }
+#app-screen { flex-direction: row; }
+
+/* ===== LOGIN ===== */
+#login-screen {
+  background: var(--bg);
+  align-items: center;
+  justify-content: center;
+  overflow: hidden;
+}
+.login-bg { position: absolute; inset: 0; pointer-events: none; }
+.login-orb {
+  position: absolute;
+  border-radius: 50%;
+  filter: blur(80px);
+  opacity: 0.15;
+  animation: float 6s ease-in-out infinite;
+}
+.orb1 { width: 400px; height: 400px; background: var(--green); top: -100px; left: -100px; animation-delay: 0s; }
+.orb2 { width: 300px; height: 300px; background: var(--blue); bottom: -80px; right: -80px; animation-delay: 2s; }
+.orb3 { width: 200px; height: 200px; background: var(--purple); top: 50%; left: 50%; transform: translate(-50%,-50%); animation-delay: 4s; }
+@keyframes float { 0%,100% { transform: translateY(0); } 50% { transform: translateY(-20px); } }
+
+.login-box {
+  position: relative;
+  background: var(--card);
+  border: 1px solid var(--border);
+  border-radius: 24px;
+  padding: 48px 40px;
+  width: 100%;
+  max-width: 420px;
+  margin: 16px;
+  box-shadow: var(--shadow);
+  animation: slideUp 0.5s cubic-bezier(0.4,0,0.2,1);
+}
+@keyframes slideUp { from { opacity:0; transform:translateY(30px); } to { opacity:1; transform:translateY(0); } }
+
+.login-logo { text-align: center; margin-bottom: 36px; }
+.logo-icon { font-size: 48px; margin-bottom: 12px; animation: pulse 2s ease-in-out infinite; }
+@keyframes pulse { 0%,100% { transform: scale(1); } 50% { transform: scale(1.05); } }
+.login-logo h1 { font-family: var(--font-head); font-size: 28px; font-weight: 800; letter-spacing: -0.5px; }
+.login-logo h1 span { color: var(--green); }
+.login-logo p { color: var(--text2); margin-top: 6px; font-size: 13px; }
+
+.input-group { margin-bottom: 20px; }
+.input-group label { display: block; margin-bottom: 8px; font-size: 12px; font-weight: 600; color: var(--text2); text-transform: uppercase; letter-spacing: 0.8px; }
+.input-group input {
+  width: 100%;
+  background: var(--bg3);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  padding: 14px 16px;
+  color: var(--text);
+  font-size: 15px;
+  transition: border-color var(--transition);
+}
+.input-group input:focus { border-color: var(--green); }
+
+/* ===== BUTTONS ===== */
+.btn-primary {
+  display: inline-flex; align-items: center; gap: 8px;
+  background: var(--green); color: #0a1a0f;
+  padding: 13px 24px; border-radius: var(--radius-sm);
+  font-weight: 700; font-size: 14px;
+  transition: all var(--transition);
+}
+.btn-primary:hover { background: #33eb91; transform: translateY(-1px); box-shadow: 0 6px 20px rgba(0,230,118,0.3); }
+.btn-primary:active { transform: translateY(0); }
+.btn-full { width: 100%; justify-content: center; }
+
+.btn-secondary {
+  display: inline-flex; align-items: center; gap: 8px;
+  background: var(--bg3); color: var(--text);
+  border: 1px solid var(--border);
+  padding: 12px 20px; border-radius: var(--radius-sm);
+  font-weight: 500; font-size: 14px;
+  transition: all var(--transition);
+}
+.btn-secondary:hover { background: var(--card2); border-color: var(--text3); }
+.btn-small { background: var(--blue); color: white; padding: 8px 16px; border-radius: 6px; font-size: 13px; font-weight: 600; transition: all var(--transition); }
+.btn-small:hover { background: #5a9bff; }
+.btn-danger-small { background: var(--red-dim); color: var(--red); border: 1px solid var(--red); padding: 8px 16px; border-radius: 6px; font-size: 13px; font-weight: 600; }
+.btn-danger-small:hover { background: var(--red); color: white; }
+
+.error-msg { color: var(--red); font-size: 13px; margin-top: 10px; text-align: center; }
+.hidden { display: none !important; }
+
+/* ===== SIDEBAR ===== */
+.sidebar {
+  width: var(--sidebar-w);
+  background: var(--card);
+  border-right: 1px solid var(--border);
+  display: flex; flex-direction: column;
+  height: 100vh;
+  overflow-y: auto;
+  flex-shrink: 0;
+  transition: transform var(--transition);
+  z-index: 100;
+}
+.sidebar-header {
+  padding: 20px;
+  border-bottom: 1px solid var(--border);
+  display: flex; align-items: center; justify-content: space-between;
+}
+.brand { display: flex; align-items: center; gap: 12px; }
+.brand-icon { font-size: 28px; }
+.brand h2 { font-family: var(--font-head); font-size: 16px; font-weight: 800; line-height: 1; }
+.brand span { color: var(--green); font-size: 10px; font-weight: 700; letter-spacing: 2px; text-transform: uppercase; }
+.sidebar-close { display: none; background: none; color: var(--text2); font-size: 18px; }
+
+.wa-status-card {
+  margin: 12px;
+  background: var(--bg3);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  padding: 12px 14px;
+  display: flex; align-items: center; gap: 10px;
+}
+.wa-status-dot {
+  width: 10px; height: 10px; border-radius: 50%; flex-shrink: 0;
+  background: var(--text3);
+  transition: background var(--transition);
+}
+.wa-status-dot.connected { background: var(--green); box-shadow: 0 0 8px var(--green); animation: blink 2s ease-in-out infinite; }
+.wa-status-dot.connecting { background: var(--orange); animation: blink 0.8s ease-in-out infinite; }
+.wa-status-dot.qr { background: var(--blue); animation: blink 0.8s ease-in-out infinite; }
+@keyframes blink { 0%,100% { opacity:1; } 50% { opacity:0.4; } }
+.wa-status-info { flex: 1; }
+.wa-status-label { display: block; font-size: 13px; font-weight: 600; }
+.wa-status-sub { font-size: 11px; color: var(--text3); }
+.wa-qr-btn { background: var(--blue); color: white; padding: 4px 10px; border-radius: 5px; font-size: 11px; font-weight: 700; }
+
+.nav-section { padding: 12px 8px 4px; }
+.nav-label { font-size: 10px; font-weight: 700; color: var(--text3); text-transform: uppercase; letter-spacing: 1.5px; padding: 0 8px; display: block; margin-bottom: 4px; }
+.nav-item {
+  display: flex; align-items: center; gap: 10px;
+  width: 100%; background: none;
+  padding: 10px 12px; border-radius: var(--radius-sm);
+  color: var(--text2); font-size: 14px; font-weight: 500;
+  transition: all var(--transition);
+  margin-bottom: 2px;
+  position: relative;
+}
+.nav-item:hover { background: var(--bg3); color: var(--text); }
+.nav-item.active { background: var(--green-dim); color: var(--green); font-weight: 600; }
+.nav-badge {
+  margin-left: auto;
+  background: var(--bg3);
+  color: var(--text2);
+  font-size: 11px; font-weight: 700;
+  padding: 2px 7px; border-radius: 20px;
+}
+.nav-item.active .nav-badge { background: var(--green-dim); color: var(--green); }
+
+.sidebar-footer { margin-top: auto; padding: 16px; border-top: 1px solid var(--border); }
+.btn-logout {
+  display: flex; align-items: center; gap: 8px;
+  background: var(--red-dim); color: var(--red);
+  width: 100%; padding: 10px 14px; border-radius: var(--radius-sm);
+  font-size: 13px; font-weight: 600;
+  transition: all var(--transition);
+}
+.btn-logout:hover { background: var(--red); color: white; }
+
+.sidebar-overlay {
+  display: none; position: fixed; inset: 0;
+  background: rgba(0,0,0,0.6); z-index: 99;
+}
+
+/* ===== MAIN CONTENT ===== */
+.main-content {
+  flex: 1; display: flex; flex-direction: column;
+  overflow: hidden; min-width: 0;
+}
+
+/* ===== TOPBAR ===== */
+.topbar {
+  height: var(--topbar-h);
+  background: var(--card);
+  border-bottom: 1px solid var(--border);
+  display: flex; align-items: center; gap: 16px;
+  padding: 0 20px; flex-shrink: 0;
+}
+.menu-btn {
+  display: none; flex-direction: column; gap: 5px;
+  background: none; padding: 6px;
+}
+.menu-btn span { display: block; width: 22px; height: 2px; background: var(--text); border-radius: 2px; transition: all var(--transition); }
+.topbar-title { font-family: var(--font-head); font-size: 16px; font-weight: 700; flex: 1; }
+.topbar-right { display: flex; align-items: center; gap: 12px; }
+.wa-mini-status { display: flex; align-items: center; gap: 6px; }
+.dot { width: 8px; height: 8px; border-radius: 50%; background: var(--text3); }
+.dot.connected { background: var(--green); animation: blink 2s infinite; }
+.dot.connecting { background: var(--orange); animation: blink 0.8s infinite; }
+
+/* ===== PAGES ===== */
+.page { display: none; flex: 1; overflow-y: auto; padding: 24px; }
+.page.active { display: block; }
+
+.page-header { margin-bottom: 24px; }
+.page-header h1 { font-family: var(--font-head); font-size: 26px; font-weight: 800; margin-bottom: 4px; }
+.page-header p { color: var(--text2); font-size: 14px; }
+
+.page-actions { display: flex; gap: 10px; flex-wrap: wrap; margin-bottom: 16px; }
+
+/* ===== CARDS ===== */
+.card {
+  background: var(--card);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 24px;
+  margin-bottom: 16px;
+}
+
+/* ===== STATS ===== */
+.stats-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 14px; margin-bottom: 28px; }
+.stat-card {
+  background: var(--card);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 20px;
+  display: flex; align-items: center; gap: 16px;
+  transition: transform var(--transition);
+}
+.stat-card:hover { transform: translateY(-2px); }
+.stat-card.green { border-color: rgba(0,230,118,0.2); }
+.stat-card.blue { border-color: rgba(68,138,255,0.2); }
+.stat-card.purple { border-color: rgba(206,147,216,0.2); }
+.stat-card.orange { border-color: rgba(255,183,77,0.2); }
+.stat-icon { font-size: 28px; }
+.stat-num { display: block; font-family: var(--font-head); font-size: 28px; font-weight: 800; line-height: 1; }
+.stat-card.green .stat-num { color: var(--green); }
+.stat-card.blue .stat-num { color: var(--blue); }
+.stat-card.purple .stat-num { color: var(--purple); }
+.stat-card.orange .stat-num { color: var(--orange); }
+.stat-label { font-size: 12px; color: var(--text2); margin-top: 4px; font-weight: 500; }
+
+/* ===== QUICK ACTIONS ===== */
+.section-title { font-family: var(--font-head); font-size: 14px; font-weight: 700; color: var(--text2); text-transform: uppercase; letter-spacing: 1px; margin-bottom: 14px; }
+.quick-actions { display: grid; grid-template-columns: repeat(4,1fr); gap: 12px; margin-bottom: 28px; }
+.qa-btn {
+  background: var(--card);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 20px 10px;
+  display: flex; flex-direction: column; align-items: center; gap: 8px;
+  color: var(--text); font-size: 13px; font-weight: 600;
+  transition: all var(--transition);
+}
+.qa-btn:hover { background: var(--card2); border-color: var(--green); color: var(--green); transform: translateY(-2px); }
+.qa-icon { font-size: 24px; }
+
+/* ===== RECENT LIST ===== */
+.recent-list { display: flex; flex-direction: column; gap: 10px; }
+.recent-item {
+  background: var(--card);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  padding: 14px 16px;
+  display: flex; align-items: center; gap: 12px;
+}
+.recent-icon { font-size: 20px; }
+.recent-info { flex: 1; min-width: 0; }
+.recent-msg { font-size: 13px; font-weight: 500; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.recent-meta { font-size: 11px; color: var(--text3); margin-top: 3px; }
+.recent-status { font-size: 11px; font-weight: 700; padding: 3px 8px; border-radius: 20px; white-space: nowrap; }
+.status-completed { background: var(--green-dim); color: var(--green); }
+.status-failed { background: var(--red-dim); color: var(--red); }
+.status-sending { background: var(--blue-dim); color: var(--blue); }
+
+/* ===== SEND PROGRESS ===== */
+.send-progress-card {
+  background: var(--card);
+  border: 1px solid var(--blue);
+  border-radius: var(--radius);
+  padding: 20px;
+  margin-bottom: 20px;
+  animation: slideDown 0.3s ease;
+}
+@keyframes slideDown { from { opacity:0; transform:translateY(-10px); } to { opacity:1; transform:translateY(0); } }
+.progress-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px; }
+.progress-title { font-weight: 700; color: var(--blue); }
+.progress-count { font-family: var(--font-head); font-size: 18px; font-weight: 800; }
+.progress-bar-wrap { background: var(--bg3); border-radius: 20px; height: 8px; overflow: hidden; margin-bottom: 12px; }
+.progress-bar { height: 100%; background: linear-gradient(90deg, var(--blue), var(--green)); border-radius: 20px; transition: width 0.5s ease; }
+.progress-log { display: flex; flex-direction: column; gap: 4px; max-height: 120px; overflow-y: auto; }
+.progress-log-item { font-size: 12px; display: flex; align-items: center; gap: 6px; }
+.progress-log-item.success { color: var(--green); }
+.progress-log-item.failed { color: var(--red); }
+
+/* ===== FORM ===== */
+.form-section { margin-bottom: 20px; }
+.form-label { display: block; font-size: 12px; font-weight: 700; color: var(--text2); text-transform: uppercase; letter-spacing: 0.8px; margin-bottom: 10px; }
+.optional { text-transform: none; font-weight: 400; color: var(--text3); letter-spacing: 0; }
+.form-textarea {
+  width: 100%; background: var(--bg3); border: 1px solid var(--border);
+  border-radius: var(--radius-sm); padding: 14px; color: var(--text);
+  font-size: 14px; resize: vertical; min-height: 120px;
+  transition: border-color var(--transition); line-height: 1.6;
+}
+.form-textarea:focus { border-color: var(--accent); }
+.form-select {
+  width: 100%; background: var(--bg3); border: 1px solid var(--border);
+  border-radius: var(--radius-sm); padding: 12px 14px; color: var(--text);
+  font-size: 14px; appearance: none; cursor: pointer;
+}
+.form-select:focus { border-color: var(--accent); }
+.char-count { font-size: 11px; color: var(--text3); margin-top: 6px; text-align: right; }
+
+/* TARGET TABS */
+.target-tabs { display: flex; gap: 8px; margin-bottom: 12px; }
+.target-tab {
+  flex: 1; padding: 10px; border-radius: var(--radius-sm);
+  background: var(--bg3); border: 1px solid var(--border);
+  color: var(--text2); font-size: 13px; font-weight: 600;
+  transition: all var(--transition);
+}
+.target-tab.active { background: var(--green-dim); border-color: var(--green); color: var(--green); }
+
+.group-list { max-height: 200px; overflow-y: auto; display: flex; flex-direction: column; gap: 6px; margin-top: 10px; }
+.group-check-item {
+  display: flex; align-items: center; gap: 10px;
+  padding: 10px 12px; border-radius: var(--radius-sm);
+  background: var(--bg3); border: 1px solid var(--border);
+  cursor: pointer; transition: all var(--transition);
+}
+.group-check-item:hover { border-color: var(--green); }
+.group-check-item input[type="checkbox"] { accent-color: var(--green); width: 16px; height: 16px; }
+.group-check-item label { flex: 1; cursor: pointer; font-size: 13px; }
+.group-check-count { font-size: 11px; color: var(--text3); }
+.selected-info { font-size: 12px; color: var(--text3); margin-top: 8px; }
+
+/* MEDIA DROP */
+.media-drop {
+  border: 2px dashed var(--border); border-radius: var(--radius-sm);
+  padding: 32px 16px; text-align: center; cursor: pointer;
+  transition: all var(--transition);
+}
+.media-drop:hover { border-color: var(--green); background: var(--green-dim); }
+.media-drop-icon { font-size: 32px; margin-bottom: 8px; }
+.media-drop p { font-size: 13px; color: var(--text2); margin-bottom: 4px; }
+.media-drop span { font-size: 11px; color: var(--text3); }
+.media-preview { display: flex; align-items: center; gap: 12px; background: var(--bg3); padding: 12px; border-radius: var(--radius-sm); }
+.media-preview img { width: 48px; height: 48px; object-fit: cover; border-radius: 6px; }
+.media-preview-info { flex: 1; min-width: 0; }
+.media-preview-name { font-size: 13px; font-weight: 600; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.media-preview-size { font-size: 11px; color: var(--text3); }
+.media-preview-remove { background: var(--red-dim); color: var(--red); padding: 4px 8px; border-radius: 4px; font-size: 12px; }
+
+.form-actions { display: flex; gap: 10px; flex-wrap: wrap; justify-content: flex-end; margin-top: 24px; padding-top: 20px; border-top: 1px solid var(--border); }
+
+/* ===== SEARCH ===== */
+.search-bar { margin-bottom: 16px; }
+.search-input {
+  width: 100%; background: var(--card); border: 1px solid var(--border);
+  border-radius: var(--radius-sm); padding: 11px 16px; color: var(--text);
+  font-size: 14px; transition: border-color var(--transition);
+}
+.search-input:focus { border-color: var(--accent); }
+.group-search-wrap { margin-bottom: 6px; }
+.group-search-wrap .search-input { font-size: 13px; padding: 9px 13px; }
+
+/* ===== GROUPS LIST ===== */
+.groups-list { display: flex; flex-direction: column; gap: 10px; }
+.group-item {
+  background: var(--card);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 16px 20px;
+  display: flex; align-items: center; gap: 14px;
+  transition: all var(--transition);
+}
+.group-item:hover { border-color: var(--border); background: var(--card2); }
+.group-item.inactive { opacity: 0.5; }
+.group-avatar {
+  width: 44px; height: 44px; border-radius: 12px;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 20px; flex-shrink: 0;
+  background: var(--green-dim); border: 1px solid rgba(0,230,118,0.2);
+}
+.group-info { flex: 1; min-width: 0; }
+.group-name { font-weight: 600; font-size: 14px; margin-bottom: 3px; }
+.group-meta { font-size: 12px; color: var(--text3); display: flex; gap: 10px; flex-wrap: wrap; }
+.group-tag { background: var(--blue-dim); color: var(--blue); padding: 1px 7px; border-radius: 20px; font-size: 10px; font-weight: 700; }
+.group-actions { display: flex; gap: 6px; }
+.icon-btn {
+  width: 32px; height: 32px; border-radius: 6px; display: flex; align-items: center; justify-content: center;
+  font-size: 14px; transition: all var(--transition);
+}
+.icon-btn.toggle { background: var(--green-dim); color: var(--green); }
+.icon-btn.toggle.off { background: var(--bg3); color: var(--text3); }
+.icon-btn.edit { background: var(--blue-dim); color: var(--blue); }
+.icon-btn.delete { background: var(--red-dim); color: var(--red); }
+.icon-btn:hover { filter: brightness(1.2); transform: scale(1.05); }
+.wa-linked { background: var(--green-dim); color: var(--green); padding: 2px 8px; border-radius: 20px; font-size: 10px; font-weight: 700; }
+.wa-unlinked { background: var(--bg3); color: var(--text3); padding: 2px 8px; border-radius: 20px; font-size: 10px; font-weight: 700; }
+
+/* ===== CONTACTS ===== */
+.contacts-stats { display: flex; gap: 12px; margin-bottom: 16px; flex-wrap: wrap; }
+.contacts-stat-pill { background: var(--card); border: 1px solid var(--border); border-radius: 20px; padding: 6px 14px; font-size: 12px; color: var(--text2); font-weight: 600; }
+.contacts-list { display: flex; flex-direction: column; gap: 8px; }
+.contact-item {
+  background: var(--card); border: 1px solid var(--border); border-radius: var(--radius-sm);
+  padding: 12px 16px; display: flex; align-items: center; gap: 12px;
+}
+.contact-avatar { width: 36px; height: 36px; border-radius: 50%; background: var(--purple-dim); display: flex; align-items: center; justify-content: center; font-size: 16px; flex-shrink: 0; }
+.contact-info { flex: 1; min-width: 0; }
+.contact-name { font-size: 13px; font-weight: 600; }
+.contact-phone { font-size: 12px; color: var(--text3); }
+.contact-state { font-size: 11px; background: var(--blue-dim); color: var(--blue); padding: 2px 8px; border-radius: 20px; font-weight: 700; }
+
+/* ===== TEMPLATES ===== */
+.templates-list { display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 14px; }
+.template-card {
+  background: var(--card); border: 1px solid var(--border); border-radius: var(--radius);
+  padding: 20px; cursor: pointer; transition: all var(--transition);
+}
+.template-card:hover { border-color: var(--green); transform: translateY(-2px); }
+.template-title { font-family: var(--font-head); font-size: 15px; font-weight: 700; margin-bottom: 8px; }
+.template-preview { font-size: 13px; color: var(--text2); line-height: 1.5; display: -webkit-box; -webkit-line-clamp: 3; -webkit-box-orient: vertical; overflow: hidden; margin-bottom: 12px; }
+.template-media { font-size: 11px; color: var(--orange); margin-bottom: 8px; }
+.template-actions { display: flex; gap: 6px; justify-content: flex-end; }
+
+/* ===== SCHEDULE ===== */
+.scheduled-list { display: flex; flex-direction: column; gap: 10px; }
+.schedule-item {
+  background: var(--card); border: 1px solid var(--border); border-radius: var(--radius);
+  padding: 16px 20px; display: flex; align-items: center; gap: 14px;
+}
+.schedule-time { text-align: center; min-width: 70px; }
+.schedule-time-value { font-family: var(--font-head); font-size: 22px; font-weight: 800; color: var(--orange); line-height: 1; }
+.schedule-time-date { font-size: 11px; color: var(--text3); margin-top: 4px; }
+.schedule-info { flex: 1; min-width: 0; }
+.schedule-msg { font-size: 13px; font-weight: 600; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; margin-bottom: 4px; }
+.schedule-meta { font-size: 12px; color: var(--text3); }
+.recurring-badge { background: var(--purple-dim); color: var(--purple); padding: 2px 8px; border-radius: 20px; font-size: 10px; font-weight: 700; }
+
+/* ===== HISTORY ===== */
+.history-stats { display: flex; gap: 12px; margin-bottom: 20px; flex-wrap: wrap; }
+.history-stat { background: var(--card); border: 1px solid var(--border); border-radius: var(--radius-sm); padding: 14px 20px; text-align: center; flex: 1; min-width: 100px; }
+.history-stat-num { font-family: var(--font-head); font-size: 24px; font-weight: 800; }
+.history-stat-label { font-size: 11px; color: var(--text2); margin-top: 2px; }
+.history-list { display: flex; flex-direction: column; gap: 10px; }
+.history-item {
+  background: var(--card); border: 1px solid var(--border); border-radius: var(--radius);
+  padding: 16px 20px;
+}
+.history-item-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 8px; }
+.history-item-msg { font-size: 13px; color: var(--text2); line-height: 1.5; }
+.history-item-footer { display: flex; gap: 12px; margin-top: 10px; flex-wrap: wrap; }
+.history-pill { font-size: 11px; font-weight: 700; padding: 3px 9px; border-radius: 20px; }
+.pill-sent { background: var(--green-dim); color: var(--green); }
+.pill-failed { background: var(--red-dim); color: var(--red); }
+.pill-time { background: var(--bg3); color: var(--text3); }
+
+/* ===== SETTINGS ===== */
+.settings-card { padding: 0; overflow: hidden; }
+.setting-item { display: flex; align-items: center; gap: 16px; padding: 20px 24px; border-bottom: 1px solid var(--border); flex-wrap: wrap; }
+.setting-item:last-child { border-bottom: none; }
+.setting-info { flex: 1; min-width: 180px; }
+.setting-info label { display: block; font-size: 14px; font-weight: 600; margin-bottom: 4px; }
+.setting-info p { font-size: 12px; color: var(--text3); }
+.setting-input {
+  background: var(--bg3); border: 1px solid var(--border); border-radius: 6px;
+  padding: 8px 12px; color: var(--text); font-size: 13px; width: 100px;
+}
+.setting-note { font-size: 12px; color: var(--text3); font-family: monospace; background: var(--bg3); padding: 6px 10px; border-radius: 5px; }
+
+/* ===== MODAL ===== */
+.modal-overlay {
+  position: fixed; inset: 0; background: rgba(0,0,0,0.7);
+  display: flex; align-items: center; justify-content: center;
+  z-index: 1000; padding: 16px;
+  backdrop-filter: blur(4px);
+  animation: fadeIn 0.2s ease;
+}
+@keyframes fadeIn { from { opacity:0; } to { opacity:1; } }
+.modal {
+  background: var(--card); border: 1px solid var(--border);
+  border-radius: var(--radius); width: 100%; max-width: 520px;
+  max-height: 90vh; overflow-y: auto;
+  box-shadow: var(--shadow);
+  animation: modalIn 0.25s cubic-bezier(0.4,0,0.2,1);
+}
+@keyframes modalIn { from { opacity:0; transform:scale(0.95) translateY(10px); } to { opacity:1; transform:scale(1) translateY(0); } }
+.modal-header { padding: 20px 24px; border-bottom: 1px solid var(--border); display: flex; align-items: center; justify-content: space-between; }
+.modal-header h3 { font-family: var(--font-head); font-size: 18px; font-weight: 800; }
+.modal-close { background: var(--bg3); color: var(--text2); width: 30px; height: 30px; border-radius: 50%; font-size: 16px; display: flex; align-items: center; justify-content: center; }
+.modal-close:hover { background: var(--red-dim); color: var(--red); }
+.modal-body { padding: 24px; }
+.modal-body .form-section:last-child { margin-bottom: 0; }
+
+/* QR MODAL */
+.qr-modal { max-width: 380px; }
+.qr-body { text-align: center; }
+.qr-body p { color: var(--text2); font-size: 13px; margin-bottom: 20px; }
+#qr-image { width: 240px; height: 240px; border-radius: 12px; background: white; padding: 8px; }
+.qr-note { font-size: 11px; color: var(--text3); margin-top: 12px; }
+
+/* CONFIRM MODAL */
+.confirm-modal { max-width: 380px; }
+.confirm-modal .modal-body { text-align: center; }
+.confirm-icon { font-size: 48px; margin-bottom: 16px; }
+.confirm-modal h3 { font-family: var(--font-head); font-size: 20px; font-weight: 800; margin-bottom: 8px; }
+.confirm-modal p { color: var(--text2); font-size: 14px; margin-bottom: 24px; line-height: 1.5; }
+.confirm-actions { display: flex; gap: 10px; justify-content: center; }
+
+/* ===== MODAL FORM INPUTS ===== */
+.modal-input {
+  width: 100%; background: var(--bg3); border: 1px solid var(--border);
+  border-radius: var(--radius-sm); padding: 12px 14px; color: var(--text);
+  font-size: 14px; transition: border-color var(--transition);
+  margin-bottom: 4px;
+}
+.modal-input:focus { border-color: var(--accent); }
+.modal-textarea {
+  width: 100%; background: var(--bg3); border: 1px solid var(--border);
+  border-radius: var(--radius-sm); padding: 12px 14px; color: var(--text);
+  font-size: 14px; resize: vertical; min-height: 100px;
+  transition: border-color var(--transition);
+}
+.modal-textarea:focus { border-color: var(--accent); }
+.modal-select {
+  width: 100%; background: var(--bg3); border: 1px solid var(--border);
+  border-radius: var(--radius-sm); padding: 12px 14px; color: var(--text);
+  font-size: 14px; appearance: none;
+}
+.modal-label { display: block; font-size: 11px; font-weight: 700; color: var(--text2); text-transform: uppercase; letter-spacing: 0.8px; margin-bottom: 8px; margin-top: 16px; }
+.modal-label:first-child { margin-top: 0; }
+.modal-actions { display: flex; gap: 10px; justify-content: flex-end; margin-top: 24px; }
+.modal-row { display: flex; gap: 12px; }
+.modal-row > div { flex: 1; }
+
+/* ===== TOAST ===== */
+.toast-container { position: fixed; bottom: 20px; right: 20px; z-index: 9999; display: flex; flex-direction: column; gap: 8px; }
+.toast {
+  background: var(--card2); border: 1px solid var(--border);
+  border-radius: var(--radius-sm); padding: 12px 18px;
+  font-size: 13px; font-weight: 600;
+  display: flex; align-items: center; gap: 10px;
+  box-shadow: var(--shadow);
+  animation: toastIn 0.3s ease;
+  max-width: 320px;
+}
+@keyframes toastIn { from { opacity:0; transform:translateX(40px); } to { opacity:1; transform:translateX(0); } }
+.toast.success { border-color: var(--green); }
+.toast.error { border-color: var(--red); }
+.toast.info { border-color: var(--blue); }
+
+/* ===== MISC ===== */
+.empty-state { text-align: center; padding: 48px; color: var(--text3); font-size: 14px; }
+.loading { text-align: center; padding: 32px; color: var(--text3); font-size: 14px; }
+.divider { height: 1px; background: var(--border); margin: 16px 0; }
+.badge-wa { display: inline-flex; align-items: center; gap: 4px; background: var(--green-dim); color: var(--green); padding: 3px 8px; border-radius: 20px; font-size: 10px; font-weight: 700; }
+
+/* ===== RESPONSIVE ===== */
+@media (max-width: 768px) {
+  .sidebar {
+    position: fixed; left: 0; top: 0; bottom: 0;
+    transform: translateX(-100%); z-index: 100;
+  }
+  .sidebar.open { transform: translateX(0); }
+  .sidebar-close { display: flex; }
+  .sidebar-overlay.open { display: block; }
+  .menu-btn { display: flex; }
+  .stats-grid { grid-template-columns: repeat(2, 1fr); }
+  .quick-actions { grid-template-columns: repeat(2, 1fr); }
+  .templates-list { grid-template-columns: 1fr; }
+  .page { padding: 16px; }
+  .topbar { padding: 0 14px; }
+  .modal { max-width: 100%; margin: 0; }
+  .modal-overlay { align-items: flex-end; padding: 0; }
+  .modal { border-radius: var(--radius) var(--radius) 0 0; max-height: 85vh; }
+  .form-actions { flex-direction: column-reverse; }
+  .form-actions button { width: 100%; justify-content: center; }
+}
+
+@media (max-width: 400px) {
+  .stats-grid { grid-template-columns: 1fr; }
+  .quick-actions { grid-template-columns: repeat(2, 1fr); }
+  .page-header h1 { font-size: 22px; }
+}
+</style>
+</head>
+<body>
+
+<!-- LOGIN SCREEN -->
+<div id="login-screen" class="screen active">
+  <div class="login-bg">
+    <div class="login-orb orb1"></div>
+    <div class="login-orb orb2"></div>
+    <div class="login-orb orb3"></div>
+  </div>
+  <div class="login-box">
+    <div class="login-logo">
+      <div class="logo-icon">📡</div>
+      <h1>WA Broadcast<span>Pro</span></h1>
+      <p>Professional WhatsApp Broadcast Tool</p>
+    </div>
+    <div class="login-form">
+      <div class="input-group">
+        <label>Admin Password</label>
+        <input type="password" id="login-password" placeholder="Enter password" autocomplete="current-password" />
+      </div>
+      <button class="btn-primary btn-full" onclick="login()">
+        <span>Access Dashboard</span>
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
+      </button>
+      <p id="login-error" class="error-msg hidden">Invalid password. Try again.</p>
+    </div>
+  </div>
+</div>
+
+<!-- MAIN APP -->
+<div id="app-screen" class="screen">
+
+  <!-- SIDEBAR -->
+  <nav class="sidebar" id="sidebar">
+    <div class="sidebar-header">
+      <div class="brand">
+        <span class="brand-icon">📡</span>
+        <div>
+          <h2>WA Broadcast</h2>
+          <span>Pro</span>
+        </div>
+      </div>
+      <button class="sidebar-close" onclick="toggleSidebar()">✕</button>
+    </div>
+
+    <!-- WA Status -->
+    <div class="wa-status-card" id="wa-status-card">
+      <div class="wa-status-dot" id="wa-dot"></div>
+      <div class="wa-status-info">
+        <span class="wa-status-label" id="wa-status-label">Connecting...</span>
+        <span class="wa-status-sub" id="wa-status-sub">WhatsApp</span>
+      </div>
+      <button class="wa-qr-btn hidden" id="wa-qr-btn" onclick="showQR()">QR</button>
+    </div>
+
+    <div class="nav-section">
+      <span class="nav-label">MAIN</span>
+      <button class="nav-item active" onclick="showPage('dashboard')">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/></svg>
+        Dashboard
+      </button>
+      <button class="nav-item" onclick="showPage('send')">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="22" y1="2" x2="11" y2="13"/><polygon points="22 2 15 22 11 13 2 9 22 2"/></svg>
+        Send Message
+      </button>
+      <button class="nav-item" onclick="showPage('schedule')">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+        Schedule
+      </button>
+    </div>
+
+    <div class="nav-section">
+      <span class="nav-label">MANAGE</span>
+      <button class="nav-item" onclick="showPage('groups')">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
+        Groups
+        <span class="nav-badge" id="groups-badge">0</span>
+      </button>
+      <button class="nav-item" onclick="showPage('contacts')">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+        Contacts
+        <span class="nav-badge" id="contacts-badge">0</span>
+      </button>
+      <button class="nav-item" onclick="showPage('templates')">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/><polyline points="10 9 9 9 8 9"/></svg>
+        Templates
+      </button>
+    </div>
+
+    <div class="nav-section">
+      <span class="nav-label">REPORTS</span>
+      <button class="nav-item" onclick="showPage('history')">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg>
+        History & Reports
+      </button>
+      <button class="nav-item" onclick="showPage('settings')">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="3"/><path d="M19.07 4.93l-1.41 1.41M19.07 19.07l-1.41-1.41M4.93 4.93l1.41 1.41M4.93 19.07l1.41-1.41M12 2v2M12 20v2M2 12h2M20 12h2"/></svg>
+        Settings
+      </button>
+    </div>
+
+    <div class="sidebar-footer">
+      <button class="btn-logout" onclick="logoutApp()">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg>
+        Logout
+      </button>
+    </div>
+  </nav>
+
+  <!-- OVERLAY for mobile -->
+  <div class="sidebar-overlay" id="sidebar-overlay" onclick="toggleSidebar()"></div>
+
+  <!-- MAIN CONTENT -->
+  <main class="main-content">
+
+    <!-- TOP BAR -->
+    <header class="topbar">
+      <button class="menu-btn" onclick="toggleSidebar()">
+        <span></span><span></span><span></span>
+      </button>
+      <div class="topbar-title" id="page-title">Dashboard</div>
+      <div class="topbar-right">
+        <div class="wa-mini-status" id="wa-mini">
+          <div class="dot disconnected" id="mini-dot"></div>
+        </div>
+      </div>
+    </header>
+
+    <!-- PAGES -->
+
+    <!-- DASHBOARD -->
+    <div class="page active" id="page-dashboard">
+      <div class="page-header">
+        <h1>Dashboard</h1>
+        <p>Overview of your broadcast activity</p>
+      </div>
+
+      <div class="stats-grid">
+        <div class="stat-card green">
+          <div class="stat-icon">👥</div>
+          <div class="stat-info">
+            <span class="stat-num" id="stat-groups">0</span>
+            <span class="stat-label">Active Groups</span>
+          </div>
+        </div>
+        <div class="stat-card blue">
+          <div class="stat-icon">📱</div>
+          <div class="stat-info">
+            <span class="stat-num" id="stat-contacts">0</span>
+            <span class="stat-label">Total Contacts</span>
+          </div>
+        </div>
+        <div class="stat-card purple">
+          <div class="stat-icon">📨</div>
+          <div class="stat-info">
+            <span class="stat-num" id="stat-sent">0</span>
+            <span class="stat-label">Messages Sent</span>
+          </div>
+        </div>
+        <div class="stat-card orange">
+          <div class="stat-icon">⏰</div>
+          <div class="stat-info">
+            <span class="stat-num" id="stat-scheduled">0</span>
+            <span class="stat-label">Scheduled</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Quick Actions -->
+      <div class="section-title">Quick Actions</div>
+      <div class="quick-actions">
+        <button class="qa-btn" onclick="showPage('send')">
+          <div class="qa-icon">🚀</div>
+          <span>Send Now</span>
+        </button>
+        <button class="qa-btn" onclick="showPage('schedule')">
+          <div class="qa-icon">⏰</div>
+          <span>Schedule</span>
+        </button>
+        <button class="qa-btn" onclick="syncGroups()">
+          <div class="qa-icon">🔄</div>
+          <span>Sync Groups</span>
+        </button>
+        <button class="qa-btn" onclick="showPage('history')">
+          <div class="qa-icon">📊</div>
+          <span>Reports</span>
+        </button>
+      </div>
+
+      <!-- Recent Activity -->
+      <div class="section-title">Recent Activity</div>
+      <div class="recent-list" id="recent-history">
+        <div class="empty-state">No messages sent yet</div>
+      </div>
+    </div>
+
+    <!-- SEND MESSAGE -->
+    <div class="page" id="page-send">
+      <div class="page-header">
+        <h1>Send Message</h1>
+        <p>Broadcast to all or selected groups</p>
+      </div>
+
+      <!-- Send Progress -->
+      <div class="send-progress-card hidden" id="send-progress-card">
+        <div class="progress-header">
+          <span class="progress-title">📤 Sending...</span>
+          <span class="progress-count" id="progress-count">0 / 0</span>
+        </div>
+        <div class="progress-bar-wrap">
+          <div class="progress-bar" id="progress-bar" style="width:0%"></div>
+        </div>
+        <div class="progress-log" id="progress-log"></div>
+      </div>
+
+      <div class="card">
+        <!-- Target Groups -->
+        <div class="form-section">
+          <label class="form-label">Target Groups</label>
+          <div class="target-tabs">
+            <button class="target-tab active" id="tab-all" onclick="setTarget('all')">All Active Groups</button>
+            <button class="target-tab" id="tab-select" onclick="setTarget('select')">Select Groups</button>
+          </div>
+          <div class="group-selector hidden" id="group-selector">
+            <div class="group-search-wrap">
+              <input type="text" class="search-input" placeholder="Search groups..." oninput="filterSendGroups(this.value)" />
+            </div>
+            <div class="group-list" id="send-group-list"></div>
+          </div>
+          <div class="selected-info" id="selected-info">All active groups will receive this message</div>
+        </div>
+
+        <!-- Template Picker -->
+        <div class="form-section">
+          <label class="form-label">Use Template <span class="optional">(optional)</span></label>
+          <select class="form-select" id="template-picker" onchange="applyTemplate(this.value)">
+            <option value="">— Select a template —</option>
+          </select>
+        </div>
+
+        <!-- Message -->
+        <div class="form-section">
+          <label class="form-label">Message</label>
+          <textarea class="form-textarea" id="send-message" placeholder="Type your message here..." rows="5"></textarea>
+          <div class="char-count" id="char-count">0 characters</div>
+        </div>
+
+        <!-- Media Upload -->
+        <div class="form-section">
+          <label class="form-label">Attach Media <span class="optional">(optional)</span></label>
+          <div class="media-drop" id="media-drop" onclick="document.getElementById('media-input').click()">
+            <input type="file" id="media-input" hidden accept="image/*,video/*,audio/*,.pdf,.doc,.docx,.xls,.xlsx,.ppt,.pptx" onchange="handleMediaSelect(this)" />
+            <div class="media-drop-content" id="media-drop-content">
+              <div class="media-drop-icon">📎</div>
+              <p>Click to attach image, video, audio or document</p>
+              <span>Max 64MB</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Actions -->
+        <div class="form-actions">
+          <button class="btn-secondary" onclick="showSendTestConfirm()">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14.5 10c-.83 0-1.5-.67-1.5-1.5v-5c0-.83.67-1.5 1.5-1.5s1.5.67 1.5 1.5v5c0 .83-.67 1.5-1.5 1.5z"/><path d="M20.5 10H19V8.5c0-.83.67-1.5 1.5-1.5s1.5.67 1.5 1.5-.67 1.5-1.5 1.5z"/><path d="M9.5 14c.83 0 1.5.67 1.5 1.5v5c0 .83-.67 1.5-1.5 1.5S8 21.33 8 20.5v-5c0-.83.67-1.5 1.5-1.5z"/><path d="M3.5 14H5v1.5c0 .83-.67 1.5-1.5 1.5S2 16.33 2 15.5 2.67 14 3.5 14z"/><path d="M14 14.5c0-.83.67-1.5 1.5-1.5h5c.83 0 1.5.67 1.5 1.5s-.67 1.5-1.5 1.5h-5c-.83 0-1.5-.67-1.5-1.5z"/><path d="M15.5 19H14v1.5c0 .83.67 1.5 1.5 1.5s1.5-.67 1.5-1.5-.67-1.5-1.5-1.5z"/><path d="M10 9.5C10 8.67 9.33 8 8.5 8h-5C2.67 8 2 8.67 2 9.5S2.67 11 3.5 11h5c.83 0 1.5-.67 1.5-1.5z"/><path d="M8.5 5H10V3.5C10 2.67 9.33 2 8.5 2S7 2.67 7 3.5 7.67 5 8.5 5z"/></svg>
+            Test Send
+          </button>
+          <button class="btn-secondary" onclick="showScheduleModal()">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+            Schedule
+          </button>
+          <button class="btn-primary" onclick="confirmSend()">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="22" y1="2" x2="11" y2="13"/><polygon points="22 2 15 22 11 13 2 9 22 2"/></svg>
+            Send Now
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <!-- GROUPS -->
+    <div class="page" id="page-groups">
+      <div class="page-header">
+        <h1>Groups</h1>
+        <p>Manage your state-wise WhatsApp groups</p>
+      </div>
+      <div class="page-actions">
+        <button class="btn-primary" onclick="showAddGroupModal()">+ Add Group</button>
+        <button class="btn-secondary" onclick="syncGroups()">🔄 Sync from WA</button>
+      </div>
+      <div class="search-bar">
+        <input type="text" class="search-input" placeholder="Search groups..." oninput="filterGroups(this.value)" />
+      </div>
+      <div class="groups-list" id="groups-list">
+        <div class="loading">Loading groups...</div>
+      </div>
+    </div>
+
+    <!-- CONTACTS -->
+    <div class="page" id="page-contacts">
+      <div class="page-header">
+        <h1>Contacts</h1>
+        <p>Manage your 4000+ contacts</p>
+      </div>
+      <div class="page-actions">
+        <button class="btn-primary" onclick="showImportModal()">📤 Import CSV</button>
+        <button class="btn-secondary" onclick="showAddContactModal()">+ Add Contact</button>
+      </div>
+      <div class="contacts-stats" id="contacts-stats"></div>
+      <div class="contacts-list" id="contacts-list">
+        <div class="loading">Loading contacts...</div>
+      </div>
+    </div>
+
+    <!-- TEMPLATES -->
+    <div class="page" id="page-templates">
+      <div class="page-header">
+        <h1>Templates</h1>
+        <p>Save and reuse message templates</p>
+      </div>
+      <div class="page-actions">
+        <button class="btn-primary" onclick="showAddTemplateModal()">+ New Template</button>
+      </div>
+      <div class="templates-list" id="templates-list">
+        <div class="loading">Loading templates...</div>
+      </div>
+    </div>
+
+    <!-- SCHEDULE -->
+    <div class="page" id="page-schedule">
+      <div class="page-header">
+        <h1>Scheduled Messages</h1>
+        <p>Upcoming broadcasts</p>
+      </div>
+      <div class="scheduled-list" id="scheduled-list">
+        <div class="loading">Loading scheduled messages...</div>
+      </div>
+    </div>
+
+    <!-- HISTORY -->
+    <div class="page" id="page-history">
+      <div class="page-header">
+        <h1>History & Reports</h1>
+        <p>Track all sent broadcasts</p>
+      </div>
+      <div class="history-stats" id="history-stats"></div>
+      <div class="history-list" id="history-list">
+        <div class="loading">Loading history...</div>
+      </div>
+    </div>
+
+    <!-- SETTINGS -->
+    <div class="page" id="page-settings">
+      <div class="page-header">
+        <h1>Settings</h1>
+        <p>Configure your broadcast tool</p>
+      </div>
+      <div class="settings-list" id="settings-list">
+        <div class="card settings-card">
+          <div class="setting-item">
+            <div class="setting-info">
+              <label>Message Delay (ms)</label>
+              <p>Delay between each group message. Recommended: 10000ms (10 seconds)</p>
+            </div>
+            <input type="number" class="setting-input" id="setting-delay" value="10000" min="3000" max="30000" step="1000" />
+            <button class="btn-small" onclick="saveSetting('message_delay', document.getElementById('setting-delay').value)">Save</button>
+          </div>
+          <div class="setting-item">
+            <div class="setting-info">
+              <label>Daily Send Limit</label>
+              <p>Maximum groups to message per day for safety</p>
+            </div>
+            <input type="number" class="setting-input" id="setting-limit" value="200" min="10" max="500" />
+            <button class="btn-small" onclick="saveSetting('daily_limit', document.getElementById('setting-limit').value)">Save</button>
+          </div>
+          <div class="setting-item">
+            <div class="setting-info">
+              <label>WhatsApp Session</label>
+              <p>Disconnect and re-scan QR code</p>
+            </div>
+            <button class="btn-danger-small" onclick="logoutWA()">Logout WA</button>
+          </div>
+          <div class="setting-item">
+            <div class="setting-info">
+              <label>Change Password</label>
+              <p>Update admin password in .env file on server</p>
+            </div>
+            <span class="setting-note">Edit .env → ADMIN_PASSWORD</span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+  </main>
+</div>
+
+<!-- MODALS -->
+<div class="modal-overlay hidden" id="modal-overlay" onclick="closeModal()">
+  <div class="modal" id="modal" onclick="event.stopPropagation()">
+    <div class="modal-header">
+      <h3 id="modal-title">Modal</h3>
+      <button class="modal-close" onclick="closeModal()">✕</button>
+    </div>
+    <div class="modal-body" id="modal-body"></div>
+  </div>
+</div>
+
+<!-- QR MODAL -->
+<div class="modal-overlay hidden" id="qr-overlay">
+  <div class="modal qr-modal">
+    <div class="modal-header">
+      <h3>Scan QR Code</h3>
+      <button class="modal-close" onclick="document.getElementById('qr-overlay').classList.add('hidden')">✕</button>
+    </div>
+    <div class="modal-body qr-body">
+      <p>Open WhatsApp Business → Linked Devices → Link a Device</p>
+      <div id="qr-container">
+        <img id="qr-image" src="" alt="QR Code" />
+      </div>
+      <p class="qr-note">QR code expires in 60 seconds. It will auto-refresh.</p>
+    </div>
+  </div>
+</div>
+
+<!-- TOAST -->
+<div class="toast-container" id="toast-container"></div>
+
+<!-- CONFIRM DIALOG -->
+<div class="modal-overlay hidden" id="confirm-overlay">
+  <div class="modal confirm-modal">
+    <div class="modal-body">
+      <div class="confirm-icon" id="confirm-icon">⚠️</div>
+      <h3 id="confirm-title">Are you sure?</h3>
+      <p id="confirm-msg"></p>
+      <div class="confirm-actions">
+        <button class="btn-secondary" onclick="document.getElementById('confirm-overlay').classList.add('hidden')">Cancel</button>
+        <button class="btn-primary" id="confirm-ok">Confirm</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>// ===== WA BROADCAST PRO — FRONTEND APP =====
+
+const socket = io();
+let currentPage = 'dashboard';
+let sendTarget = 'all';
+let selectedGroups = [];
+let allGroups = [];
+let selectedMedia = null;
+let waConnected = false;
+
+// ===== INIT =====
+document.addEventListener('DOMContentLoaded', async () => {
+  const auth = await api('/auth/status');
+  if (auth.authenticated) {
+    showApp();
+  } else {
+    showScreen('login-screen');
+  }
+
+  document.getElementById('login-password').addEventListener('keypress', (e) => {
+    if (e.key === 'Enter') login();
+  });
+
+  document.getElementById('send-message').addEventListener('input', (e) => {
+    document.getElementById('char-count').textContent = e.target.value.length + ' characters';
+  });
+});
+
+// ===== SOCKET EVENTS =====
+socket.on('connection-update', (data) => {
+  updateWAStatus(data);
+});
+
+socket.on('send-start', (data) => {
+  showProgress(data.total);
+});
+
+socket.on('send-progress', (data) => {
+  updateProgress(data.current, data.total, data.group, data.status);
+});
+
+socket.on('send-complete', (data) => {
+  hideProgress();
+  toast(`✅ Done! Sent: ${data.sent}, Failed: ${data.failed}`, data.failed > 0 ? 'info' : 'success');
+  loadDashboard();
+  loadHistory();
+});
+
+socket.on('send-error', (data) => {
+  hideProgress();
+  toast('❌ Send error: ' + data.error, 'error');
+});
+
+socket.on('scheduled-sending-start', (data) => {
+  toast(`⏰ Scheduled message sending to ${data.total} groups...`, 'info');
+});
+
+socket.on('scheduled-sending-done', (data) => {
+  toast(`✅ Scheduled: Sent ${data.sent}, Failed ${data.failed}`, 'success');
+  loadSchedule();
+});
+
+// ===== AUTH =====
+async function login() {
+  const pw = document.getElementById('login-password').value;
+  const res = await api('/auth/login', 'POST', { password: pw });
+  if (res.success) {
+    showApp();
+  } else {
+    document.getElementById('login-error').classList.remove('hidden');
+  }
+}
+
+async function logoutApp() {
+  await api('/auth/logout-app', 'POST');
+  showScreen('login-screen');
+  document.getElementById('login-password').value = '';
+}
+
+// ===== SHOW APP =====
+function showApp() {
+  showScreen('app-screen');
+  showPage('dashboard');
+  loadAll();
+}
+
+function loadAll() {
+  loadDashboard();
+  loadGroups();
+  loadTemplates();
+}
+
+// ===== WHATSAPP STATUS =====
+function updateWAStatus(data) {
+  const dot = document.getElementById('wa-dot');
+  const label = document.getElementById('wa-status-label');
+  const sub = document.getElementById('wa-status-sub');
+  const qrBtn = document.getElementById('wa-qr-btn');
+  const miniDot = document.getElementById('mini-dot');
+
+  dot.className = 'wa-status-dot';
+  miniDot.className = 'dot';
+
+  if (data.status === 'connected') {
+    dot.classList.add('connected');
+    miniDot.classList.add('connected');
+    label.textContent = data.user?.name || 'Connected';
+    sub.textContent = data.user?.phone ? '+' + data.user.phone : 'WhatsApp Business';
+    qrBtn.classList.add('hidden');
+    waConnected = true;
+  } else if (data.status === 'qr') {
+    dot.classList.add('qr');
+    label.textContent = 'Scan QR Code';
+    sub.textContent = 'Tap QR to scan';
+    qrBtn.classList.remove('hidden');
+    waConnected = false;
+    if (data.qr) {
+      document.getElementById('qr-image').src = data.qr;
+      document.getElementById('qr-overlay').classList.remove('hidden');
+    }
+  } else if (data.status === 'connecting') {
+    dot.classList.add('connecting');
+    miniDot.classList.add('connecting');
+    label.textContent = 'Connecting...';
+    sub.textContent = 'Please wait';
+    waConnected = false;
+  } else {
+    label.textContent = 'Disconnected';
+    sub.textContent = 'Reconnecting...';
+    waConnected = false;
+  }
+}
+
+function showQR() {
+  document.getElementById('qr-overlay').classList.remove('hidden');
+}
+
+async function logoutWA() {
+  confirm2('Logout WhatsApp?', 'This will disconnect WhatsApp. You will need to scan QR again.', async () => {
+    await api('/wa/logout', 'POST');
+    toast('WhatsApp logged out', 'info');
+    closeModal();
+  });
+}
+
+// ===== PAGES =====
+function showPage(page) {
+  document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+  document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
+
+  document.getElementById('page-' + page)?.classList.add('active');
+  document.querySelectorAll('.nav-item').forEach(n => {
+    if (n.getAttribute('onclick')?.includes(`'${page}'`)) n.classList.add('active');
+  });
+
+  document.getElementById('page-title').textContent = {
+    dashboard: 'Dashboard', send: 'Send Message', groups: 'Groups',
+    contacts: 'Contacts', templates: 'Templates', schedule: 'Schedule',
+    history: 'History & Reports', settings: 'Settings'
+  }[page] || page;
+
+  currentPage = page;
+
+  // Load page data
+  if (page === 'contacts') loadContacts();
+  if (page === 'schedule') loadSchedule();
+  if (page === 'history') loadHistory();
+  if (page === 'settings') loadSettings();
+  if (page === 'send') loadSendPage();
+
+  // Close sidebar on mobile
+  if (window.innerWidth < 768) toggleSidebar(false);
+}
+
+// ===== SIDEBAR =====
+function toggleSidebar(force) {
+  const sidebar = document.getElementById('sidebar');
+  const overlay = document.getElementById('sidebar-overlay');
+  const isOpen = sidebar.classList.contains('open');
+  const open = force !== undefined ? force : !isOpen;
+  sidebar.classList.toggle('open', open);
+  overlay.classList.toggle('open', open);
+}
+
+// ===== DASHBOARD =====
+async function loadDashboard() {
+  const data = await api('/dashboard');
+  if (!data) return;
+
+  document.getElementById('stat-groups').textContent = data.groups?.active || 0;
+  document.getElementById('stat-contacts').textContent = data.contacts?.total || 0;
+  document.getElementById('stat-sent').textContent = data.messages?.total_sent || 0;
+  document.getElementById('stat-scheduled').textContent = data.scheduled || 0;
+
+  document.getElementById('groups-badge').textContent = data.groups?.total || 0;
+  document.getElementById('contacts-badge').textContent = data.contacts?.total || 0;
+
+  // Recent history
+  const history = await api('/history?limit=5');
+  const list = document.getElementById('recent-history');
+  if (history?.messages?.length) {
+    list.innerHTML = history.messages.map(m => `
+      <div class="recent-item">
+        <div class="recent-icon">${m.media_type ? '📎' : '💬'}</div>
+        <div class="recent-info">
+          <div class="recent-msg">${escHtml(m.content || '[Media]')}</div>
+          <div class="recent-meta">${formatDate(m.sent_at)} · ${JSON.parse(m.target_groups || '[]').length} groups</div>
+        </div>
+        <span class="recent-status status-${m.status}">${m.status}</span>
+      </div>
+    `).join('');
+  } else {
+    list.innerHTML = '<div class="empty-state">No messages sent yet</div>';
+  }
+}
+
+// ===== GROUPS =====
+async function loadGroups() {
+  const data = await api('/groups');
+  if (!data) return;
+  allGroups = data.groups || [];
+  renderGroups(allGroups);
+}
+
+function renderGroups(groups) {
+  const list = document.getElementById('groups-list');
+  if (!groups.length) {
+    list.innerHTML = '<div class="empty-state">No groups yet. Add groups or sync from WhatsApp.</div>';
+    return;
+  }
+  list.innerHTML = groups.map(g => `
+    <div class="group-item ${g.is_active ? '' : 'inactive'}" id="gi-${g.id}">
+      <div class="group-avatar">🏛️</div>
+      <div class="group-info">
+        <div class="group-name">${escHtml(g.name)}</div>
+        <div class="group-meta">
+          <span>📍 ${g.state}</span>
+          <span>👥 ${g.member_count} members</span>
+          <span class="group-tag">${g.tag}</span>
+          ${g.whatsapp_id ? '<span class="wa-linked">✓ WA Linked</span>' : '<span class="wa-unlinked">Not linked</span>'}
+        </div>
+      </div>
+      <div class="group-actions">
+        <button class="icon-btn toggle ${g.is_active ? '' : 'off'}" onclick="toggleGroup(${g.id})" title="${g.is_active ? 'Disable' : 'Enable'}">
+          ${g.is_active ? '✓' : '○'}
+        </button>
+        <button class="icon-btn edit" onclick="editGroup(${g.id})" title="Edit">✏️</button>
+        <button class="icon-btn delete" onclick="deleteGroup(${g.id})" title="Delete">🗑️</button>
+      </div>
+    </div>
+  `).join('');
+}
+
+function filterGroups(q) {
+  const filtered = allGroups.filter(g =>
+    g.name.toLowerCase().includes(q.toLowerCase()) ||
+    g.state.toLowerCase().includes(q.toLowerCase())
+  );
+  renderGroups(filtered);
+}
+
+async function toggleGroup(id) {
+  await api(`/groups/${id}/toggle`, 'PATCH');
+  loadGroups();
+  toast('Group updated', 'success');
+}
+
+async function deleteGroup(id) {
+  confirm2('Delete Group?', 'This will remove the group from your tool. WhatsApp group is not affected.', async () => {
+    await api(`/groups/${id}`, 'DELETE');
+    loadGroups();
+    toast('Group deleted', 'info');
+  });
+}
+
+function showAddGroupModal() {
+  showModal('Add Group', `
+    <label class="modal-label">Group Name</label>
+    <input class="modal-input" id="g-name" placeholder="e.g. Rajasthan Business Network" />
+    <label class="modal-label">State</label>
+    <select class="modal-select" id="g-state">${indianStatesOptions()}</select>
+    <label class="modal-label">Tag</label>
+    <select class="modal-select" id="g-tag">
+      <option value="general">General</option>
+      <option value="priority">Priority</option>
+      <option value="north">North India</option>
+      <option value="south">South India</option>
+      <option value="east">East India</option>
+      <option value="west">West India</option>
+    </select>
+    <label class="modal-label">WhatsApp Group ID <span style="color:var(--text3);font-weight:400">(optional — from sync)</span></label>
+    <input class="modal-input" id="g-wid" placeholder="123456789@g.us" />
+    <div class="modal-actions">
+      <button class="btn-secondary" onclick="closeModal()">Cancel</button>
+      <button class="btn-primary" onclick="saveGroup()">Add Group</button>
+    </div>
+  `);
+}
+
+async function editGroup(id) {
+  const group = allGroups.find(g => g.id === id);
+  if (!group) return;
+  showModal('Edit Group', `
+    <label class="modal-label">Group Name</label>
+    <input class="modal-input" id="g-name" value="${escHtml(group.name)}" />
+    <label class="modal-label">State</label>
+    <select class="modal-select" id="g-state">${indianStatesOptions(group.state)}</select>
+    <label class="modal-label">Tag</label>
+    <select class="modal-select" id="g-tag">
+      ${['general','priority','north','south','east','west'].map(t =>
+        `<option value="${t}" ${group.tag===t?'selected':''}>${t.charAt(0).toUpperCase()+t.slice(1)}</option>`
+      ).join('')}
+    </select>
+    <div class="modal-actions">
+      <button class="btn-secondary" onclick="closeModal()">Cancel</button>
+      <button class="btn-primary" onclick="updateGroup(${id})">Save Changes</button>
+    </div>
+  `);
+}
+
+async function saveGroup() {
+  const data = {
+    name: document.getElementById('g-name').value.trim(),
+    state: document.getElementById('g-state').value,
+    tag: document.getElementById('g-tag').value,
+    whatsapp_id: document.getElementById('g-wid')?.value.trim() || null,
+    is_active: 1, member_count: 0
+  };
+  if (!data.name) return toast('Group name required', 'error');
+  const res = await api('/groups', 'POST', data);
+  if (res.success) { closeModal(); loadGroups(); toast('Group added!', 'success'); }
+}
+
+async function updateGroup(id) {
+  const group = allGroups.find(g => g.id === id);
+  const data = {
+    name: document.getElementById('g-name').value.trim(),
+    state: document.getElementById('g-state').value,
+    tag: document.getElementById('g-tag').value,
+    is_active: group.is_active, member_count: group.member_count
+  };
+  await api(`/groups/${id}`, 'PUT', data);
+  closeModal(); loadGroups(); toast('Group updated!', 'success');
+}
+
+async function syncGroups() {
+  if (!waConnected) return toast('WhatsApp not connected', 'error');
+  toast('🔄 Syncing groups from WhatsApp...', 'info');
+  const res = await api('/groups/sync', 'POST');
+  if (res.success) {
+    loadGroups(); loadDashboard();
+    toast(`✅ Synced! Added ${res.added} new groups (${res.total} total)`, 'success');
+  } else {
+    toast('Sync failed: ' + res.error, 'error');
+  }
+}
+
+// ===== CONTACTS =====
+async function loadContacts() {
+  const data = await api('/contacts');
+  if (!data) return;
+  document.getElementById('contacts-stats').innerHTML = `
+    <div class="contacts-stat-pill">👥 Total: ${data.stats?.total || 0}</div>
+  `;
+  const list = document.getElementById('contacts-list');
+  if (!data.contacts?.length) {
+    list.innerHTML = '<div class="empty-state">No contacts yet. Import from CSV.</div>';
+    return;
+  }
+  list.innerHTML = data.contacts.slice(0, 100).map(c => `
+    <div class="contact-item">
+      <div class="contact-avatar">👤</div>
+      <div class="contact-info">
+        <div class="contact-name">${escHtml(c.name)}</div>
+        <div class="contact-phone">+${c.phone}</div>
+      </div>
+      <span class="contact-state">${c.state || 'Other'}</span>
+      <button class="icon-btn delete" onclick="deleteContact(${c.id})">🗑️</button>
+    </div>
+  `).join('') + (data.contacts.length > 100 ? `<div class="empty-state">Showing 100 of ${data.contacts.length} contacts</div>` : '');
+}
+
+async function deleteContact(id) {
+  await api(`/contacts/${id}`, 'DELETE');
+  loadContacts(); toast('Contact deleted', 'info');
+}
+
+function showImportModal() {
+  showModal('Import Contacts from CSV', `
+    <p style="color:var(--text2);font-size:13px;margin-bottom:16px;line-height:1.6">
+      CSV format: <code style="background:var(--bg3);padding:2px 6px;border-radius:4px;color:var(--green)">Name, Phone, State, GroupID</code><br/>
+      First row should be header. Phone without country code (auto-added).
+    </p>
+    <label class="modal-label">Select CSV File</label>
+    <input type="file" id="csv-file" accept=".csv,.txt" style="color:var(--text);margin-bottom:16px;width:100%" />
+    <div class="modal-actions">
+      <button class="btn-secondary" onclick="closeModal()">Cancel</button>
+      <button class="btn-primary" onclick="importContacts()">Import</button>
+    </div>
+  `);
+}
+
+async function importContacts() {
+  const file = document.getElementById('csv-file').files[0];
+  if (!file) return toast('Select a CSV file', 'error');
+  const form = new FormData();
+  form.append('file', file);
+  const res = await apiFetch('/api/contacts/bulk', { method: 'POST', body: form });
+  const data = await res.json();
+  if (data.success) { closeModal(); loadContacts(); toast(`✅ Imported ${data.imported} contacts!`, 'success'); }
+  else toast('Import failed: ' + data.error, 'error');
+}
+
+function showAddContactModal() {
+  const groupOptions = allGroups.map(g => `<option value="${g.id}">${escHtml(g.name)}</option>`).join('');
+  showModal('Add Contact', `
+    <label class="modal-label">Name</label>
+    <input class="modal-input" id="c-name" placeholder="Full Name" />
+    <label class="modal-label">Phone Number</label>
+    <input class="modal-input" id="c-phone" placeholder="919876543210 (with country code)" />
+    <label class="modal-label">State</label>
+    <select class="modal-select" id="c-state">${indianStatesOptions()}</select>
+    <label class="modal-label">Group</label>
+    <select class="modal-select" id="c-group"><option value="">— No Group —</option>${groupOptions}</select>
+    <div class="modal-actions">
+      <button class="btn-secondary" onclick="closeModal()">Cancel</button>
+      <button class="btn-primary" onclick="saveContact()">Add Contact</button>
+    </div>
+  `);
+}
+
+async function saveContact() {
+  const data = {
+    name: document.getElementById('c-name').value.trim(),
+    phone: document.getElementById('c-phone').value.replace(/[^0-9]/g, ''),
+    state: document.getElementById('c-state').value,
+    group_id: document.getElementById('c-group').value || null
+  };
+  if (!data.name || !data.phone) return toast('Name and phone required', 'error');
+  const res = await api('/contacts', 'POST', data);
+  if (res.success) { closeModal(); loadContacts(); toast('Contact added!', 'success'); }
+}
+
+// ===== TEMPLATES =====
+async function loadTemplates() {
+  const templates = await api('/templates');
+  updateTemplatePicker(templates || []);
+  const list = document.getElementById('templates-list');
+  if (!templates?.length) {
+    list.innerHTML = '<div class="empty-state">No templates yet. Create your first template.</div>';
+    return;
+  }
+  list.innerHTML = templates.map(t => `
+    <div class="template-card">
+      <div class="template-title">${escHtml(t.title)}</div>
+      <div class="template-preview">${escHtml(t.content)}</div>
+      ${t.media_type ? `<div class="template-media">📎 ${t.media_type.split('/')[0]} attached</div>` : ''}
+      <div class="template-actions">
+        <button class="btn-small" onclick="useTemplate(${t.id})">Use</button>
+        <button class="icon-btn delete" onclick="deleteTemplate(${t.id})">🗑️</button>
+      </div>
+    </div>
+  `).join('');
+}
+
+function updateTemplatePicker(templates) {
+  const picker = document.getElementById('template-picker');
+  if (!picker) return;
+  picker.innerHTML = '<option value="">— Select a template —</option>' +
+    templates.map(t => `<option value="${t.id}">${escHtml(t.title)}</option>`).join('');
+}
+
+async function applyTemplate(id) {
+  if (!id) return;
+  const templates = await api('/templates');
+  const t = templates?.find(t => t.id == id);
+  if (t) {
+    document.getElementById('send-message').value = t.content;
+    document.getElementById('char-count').textContent = t.content.length + ' characters';
+    toast('Template applied', 'success');
+  }
+}
+
+function useTemplate(id) {
+  showPage('send');
+  setTimeout(() => {
+    document.getElementById('template-picker').value = id;
+    applyTemplate(id);
+  }, 100);
+}
+
+async function deleteTemplate(id) {
+  confirm2('Delete Template?', 'This cannot be undone.', async () => {
+    await api(`/templates/${id}`, 'DELETE');
+    loadTemplates(); toast('Template deleted', 'info');
+  });
+}
+
+function showAddTemplateModal() {
+  showModal('New Template', `
+    <label class="modal-label">Template Title</label>
+    <input class="modal-input" id="t-title" placeholder="e.g. Monthly Update" />
+    <label class="modal-label">Message Content</label>
+    <textarea class="modal-textarea" id="t-content" placeholder="Your message..."></textarea>
+    <label class="modal-label">Attach Media <span style="color:var(--text3);font-weight:400">(optional)</span></label>
+    <input type="file" id="t-media" accept="image/*,video/*,.pdf,.doc,.docx" style="color:var(--text);width:100%;margin-bottom:4px" />
+    <div class="modal-actions">
+      <button class="btn-secondary" onclick="closeModal()">Cancel</button>
+      <button class="btn-primary" onclick="saveTemplate()">Save Template</button>
+    </div>
+  `);
+}
+
+async function saveTemplate() {
+  const form = new FormData();
+  form.append('title', document.getElementById('t-title').value.trim());
+  form.append('content', document.getElementById('t-content').value.trim());
+  const media = document.getElementById('t-media').files[0];
+  if (media) form.append('media', media);
+  if (!form.get('title') || !form.get('content')) return toast('Title and content required', 'error');
+  const res = await apiFetch('/api/templates', { method: 'POST', body: form });
+  const data = await res.json();
+  if (data.success) { closeModal(); loadTemplates(); toast('Template saved!', 'success'); }
+}
+
+// ===== SEND PAGE =====
+function loadSendPage() {
+  loadGroups().then(() => renderSendGroupList());
+  loadTemplates();
+}
+
+function setTarget(type) {
+  sendTarget = type;
+  document.getElementById('tab-all').classList.toggle('active', type === 'all');
+  document.getElementById('tab-select').classList.toggle('active', type === 'select');
+  document.getElementById('group-selector').classList.toggle('hidden', type !== 'select');
+
+  if (type === 'all') {
+    const active = allGroups.filter(g => g.is_active);
+    document.getElementById('selected-info').textContent = `All active groups will receive this message (${active.length} groups)`;
+  } else {
+    renderSendGroupList();
+    updateSelectedInfo();
+  }
+}
+
+function renderSendGroupList(filter = '') {
+  const list = document.getElementById('send-group-list');
+  const groups = allGroups.filter(g => g.is_active && (!filter || g.name.toLowerCase().includes(filter.toLowerCase())));
+  list.innerHTML = groups.map(g => `
+    <div class="group-check-item">
+      <input type="checkbox" id="sg-${g.id}" value="${g.id}" onchange="updateSelectedInfo()" ${selectedGroups.includes(g.id) ? 'checked' : ''} />
+      <label for="sg-${g.id}">${escHtml(g.name)} <span style="color:var(--text3)">· ${g.state}</span></label>
+      <span class="group-check-count">👥 ${g.member_count}</span>
+    </div>
+  `).join('') || '<div style="color:var(--text3);padding:12px;text-align:center">No groups found</div>';
+}
+
+function filterSendGroups(q) { renderSendGroupList(q); }
+
+function updateSelectedInfo() {
+  selectedGroups = [...document.querySelectorAll('#send-group-list input:checked')].map(cb => parseInt(cb.value));
+  document.getElementById('selected-info').textContent = selectedGroups.length > 0
+    ? `${selectedGroups.length} group(s) selected`
+    : 'No groups selected';
+}
+
+function handleMediaSelect(input) {
+  const file = input.files[0];
+  if (!file) return;
+  selectedMedia = file;
+  const isImage = file.type.startsWith('image/');
+  const content = document.getElementById('media-drop-content');
+  content.innerHTML = `
+    <div class="media-preview">
+      ${isImage ? `<img src="${URL.createObjectURL(file)}" />` : '<div style="font-size:32px">📄</div>'}
+      <div class="media-preview-info">
+        <div class="media-preview-name">${escHtml(file.name)}</div>
+        <div class="media-preview-size">${formatSize(file.size)}</div>
+      </div>
+      <button class="media-preview-remove" onclick="clearMedia(event)">✕ Remove</button>
+    </div>
+  `;
+}
+
+function clearMedia(e) {
+  e?.stopPropagation();
+  selectedMedia = null;
+  document.getElementById('media-input').value = '';
+  document.getElementById('media-drop-content').innerHTML = `
+    <div class="media-drop-icon">📎</div>
+    <p>Click to attach image, video, audio or document</p>
+    <span>Max 64MB</span>
+  `;
+}
+
+async function confirmSend() {
+  const message = document.getElementById('send-message').value.trim();
+  if (!message && !selectedMedia) return toast('Enter a message or attach media', 'error');
+  if (sendTarget === 'select' && selectedGroups.length === 0) return toast('Select at least one group', 'error');
+  if (!waConnected) return toast('WhatsApp is not connected', 'error');
+
+  const targetCount = sendTarget === 'all' ? allGroups.filter(g => g.is_active).length : selectedGroups.length;
+  confirm2('Send Message?', `This will send to ${targetCount} group(s). Are you sure?`, doSend, '🚀');
+}
+
+async function doSend() {
+  const message = document.getElementById('send-message').value.trim();
+  const form = new FormData();
+  form.append('message', message);
+  form.append('sendAll', sendTarget === 'all' ? 'true' : 'false');
+  form.append('groupIds', JSON.stringify(selectedGroups));
+  if (selectedMedia) form.append('media', selectedMedia);
+
+  const res = await apiFetch('/api/send', { method: 'POST', body: form });
+  const data = await res.json();
+  if (!data.success) toast('Send failed: ' + data.error, 'error');
+}
+
+function showSendTestConfirm() {
+  const message = document.getElementById('send-message').value.trim();
+  if (!message && !selectedMedia) return toast('Enter a message first', 'error');
+  toast('💡 Test send: Select a single group and send to test', 'info');
+  setTarget('select');
+}
+
+// ===== SCHEDULE =====
+async function loadSchedule() {
+  const scheduled = await api('/schedule');
+  const list = document.getElementById('scheduled-list');
+  if (!scheduled?.length) {
+    list.innerHTML = '<div class="empty-state">No scheduled messages. Schedule a broadcast from Send Message page.</div>';
+    return;
+  }
+  list.innerHTML = scheduled.map(s => {
+    const d = new Date(s.schedule_time);
+    return `
+      <div class="schedule-item">
+        <div class="schedule-time">
+          <div class="schedule-time-value">${d.getHours().toString().padStart(2,'0')}:${d.getMinutes().toString().padStart(2,'0')}</div>
+          <div class="schedule-time-date">${d.toLocaleDateString('en-IN')}</div>
+        </div>
+        <div class="schedule-info">
+          <div class="schedule-msg">${escHtml(s.content || '[Media]')}</div>
+          <div class="schedule-meta">
+            ${JSON.parse(s.target_groups||'[]').includes('all') ? 'All groups' : JSON.parse(s.target_groups||'[]').length + ' groups'}
+            ${s.is_recurring ? `<span class="recurring-badge">🔁 ${s.recurring_type}</span>` : ''}
+          </div>
+        </div>
+        <button class="icon-btn delete" onclick="cancelSchedule(${s.id})">🗑️</button>
+      </div>
+    `;
+  }).join('');
+}
+
+async function cancelSchedule(id) {
+  confirm2('Cancel Schedule?', 'This scheduled message will be deleted.', async () => {
+    await api(`/schedule/${id}`, 'DELETE');
+    loadSchedule(); toast('Schedule cancelled', 'info');
+  });
+}
+
+function showScheduleModal() {
+  const message = document.getElementById('send-message').value.trim();
+  if (!message && !selectedMedia) return toast('Enter a message first', 'error');
+
+  const now = new Date();
+  now.setMinutes(now.getMinutes() + 30);
+  const defaultTime = now.toISOString().slice(0, 16);
+
+  showModal('Schedule Message', `
+    <label class="modal-label">Schedule Date & Time</label>
+    <input type="datetime-local" class="modal-input" id="sch-time" value="${defaultTime}" />
+    <label class="modal-label">Recurring</label>
+    <select class="modal-select" id="sch-recurring">
+      <option value="">One-time only</option>
+      <option value="daily">Daily</option>
+      <option value="weekly">Weekly</option>
+      <option value="monthly">Monthly</option>
+    </select>
+    <div class="modal-actions">
+      <button class="btn-secondary" onclick="closeModal()">Cancel</button>
+      <button class="btn-primary" onclick="saveSchedule()">Schedule</button>
+    </div>
+  `);
+}
+
+async function saveSchedule() {
+  const scheduleTime = document.getElementById('sch-time').value;
+  const recurringType = document.getElementById('sch-recurring').value;
+  const message = document.getElementById('send-message').value.trim();
+
+  const form = new FormData();
+  form.append('message', message);
+  form.append('scheduleTime', scheduleTime);
+  form.append('sendAll', sendTarget === 'all' ? 'true' : 'false');
+  form.append('groupIds', JSON.stringify(selectedGroups));
+  form.append('isRecurring', recurringType ? 'true' : 'false');
+  if (recurringType) form.append('recurringType', recurringType);
+  if (selectedMedia) form.append('media', selectedMedia);
+
+  const res = await apiFetch('/api/schedule', { method: 'POST', body: form });
+  const data = await res.json();
+  if (data.success) {
+    closeModal();
+    toast(`✅ Scheduled for ${new Date(scheduleTime).toLocaleString('en-IN')}`, 'success');
+  } else {
+    toast('Schedule failed: ' + data.error, 'error');
+  }
+}
+
+// ===== HISTORY =====
+async function loadHistory() {
+  const data = await api('/history');
+  if (!data) return;
+
+  const stats = data.stats || {};
+  document.getElementById('history-stats').innerHTML = `
+    <div class="history-stat"><div class="history-stat-num" style="color:var(--blue)">${stats.total||0}</div><div class="history-stat-label">Total Broadcasts</div></div>
+    <div class="history-stat"><div class="history-stat-num" style="color:var(--green)">${stats.total_sent||0}</div><div class="history-stat-label">Groups Reached</div></div>
+    <div class="history-stat"><div class="history-stat-num" style="color:var(--red)">${stats.total_failed||0}</div><div class="history-stat-label">Failed</div></div>
+    <div class="history-stat"><div class="history-stat-num" style="color:var(--orange)">${stats.today||0}</div><div class="history-stat-label">Today</div></div>
+  `;
+
+  const list = document.getElementById('history-list');
+  if (!data.messages?.length) {
+    list.innerHTML = '<div class="empty-state">No message history yet</div>';
+    return;
+  }
+  list.innerHTML = data.messages.map(m => `
+    <div class="history-item">
+      <div class="history-item-header">
+        <span style="font-weight:700;font-size:14px">${m.media_type ? '📎 ' + m.media_type.split('/')[0].toUpperCase() + ' + Message' : '💬 Text Message'}</span>
+        <span class="recent-status status-${m.status}">${m.status}</span>
+      </div>
+      <div class="history-item-msg">${escHtml((m.content || '').substring(0, 150))}${m.content?.length > 150 ? '...' : ''}</div>
+      <div class="history-item-footer">
+        <span class="history-pill pill-sent">✓ Sent: ${m.sent_count||0}</span>
+        ${m.failed_count > 0 ? `<span class="history-pill pill-failed">✗ Failed: ${m.failed_count}</span>` : ''}
+        <span class="history-pill pill-time">${formatDate(m.sent_at)}</span>
+      </div>
+    </div>
+  `).join('');
+}
+
+// ===== SETTINGS =====
+async function loadSettings() {
+  const settings = await api('/settings');
+  if (settings?.message_delay) document.getElementById('setting-delay').value = settings.message_delay;
+  if (settings?.daily_limit) document.getElementById('setting-limit').value = settings.daily_limit;
+}
+
+async function saveSetting(key, value) {
+  await api('/settings', 'PUT', { key, value });
+  toast('Setting saved!', 'success');
+}
+
+// ===== PROGRESS =====
+function showProgress(total) {
+  document.getElementById('send-progress-card').classList.remove('hidden');
+  document.getElementById('progress-count').textContent = `0 / ${total}`;
+  document.getElementById('progress-bar').style.width = '0%';
+  document.getElementById('progress-log').innerHTML = '';
+}
+
+function updateProgress(current, total, group, status) {
+  const pct = (current / total) * 100;
+  document.getElementById('progress-bar').style.width = pct + '%';
+  document.getElementById('progress-count').textContent = `${current} / ${total}`;
+  const log = document.getElementById('progress-log');
+  const item = document.createElement('div');
+  item.className = `progress-log-item ${status}`;
+  item.textContent = `${status === 'success' ? '✓' : '✗'} ${group}`;
+  log.insertBefore(item, log.firstChild);
+}
+
+function hideProgress() {
+  setTimeout(() => {
+    document.getElementById('send-progress-card').classList.add('hidden');
+  }, 3000);
+}
+
+// ===== MODAL =====
+function showModal(title, body) {
+  document.getElementById('modal-title').textContent = title;
+  document.getElementById('modal-body').innerHTML = body;
+  document.getElementById('modal-overlay').classList.remove('hidden');
+}
+
+function closeModal() {
+  document.getElementById('modal-overlay').classList.add('hidden');
+}
+
+function confirm2(title, msg, onOk, icon = '⚠️') {
+  document.getElementById('confirm-icon').textContent = icon;
+  document.getElementById('confirm-title').textContent = title;
+  document.getElementById('confirm-msg').textContent = msg;
+  document.getElementById('confirm-overlay').classList.remove('hidden');
+  document.getElementById('confirm-ok').onclick = () => {
+    document.getElementById('confirm-overlay').classList.add('hidden');
+    if (onOk) onOk();
+  };
+}
+
+// ===== TOAST =====
+function toast(msg, type = 'info') {
+  const icons = { success: '✅', error: '❌', info: 'ℹ️' };
+  const t = document.createElement('div');
+  t.className = `toast ${type}`;
+  t.innerHTML = `<span>${icons[type]}</span><span>${msg}</span>`;
+  document.getElementById('toast-container').appendChild(t);
+  setTimeout(() => t.remove(), 4000);
+}
+
+// ===== API HELPERS =====
+async function api(path, method = 'GET', body = null) {
+  try {
+    const opts = { method, headers: { 'Content-Type': 'application/json' } };
+    if (body) opts.body = JSON.stringify(body);
+    const res = await fetch('/api' + path, opts);
+    return res.json();
+  } catch (err) {
+    console.error('API error:', err);
+    return null;
+  }
+}
+
+async function apiFetch(path, opts = {}) {
+  return fetch(path, opts);
+}
+
+// ===== UTILITIES =====
+function escHtml(str) {
+  if (!str) return '';
+  return str.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+}
+
+function formatDate(str) {
+  if (!str) return '';
+  const d = new Date(str);
+  return d.toLocaleString('en-IN', { day: '2-digit', month: 'short', hour: '2-digit', minute: '2-digit' });
+}
+
+function formatSize(bytes) {
+  if (bytes < 1024) return bytes + ' B';
+  if (bytes < 1024*1024) return (bytes/1024).toFixed(1) + ' KB';
+  return (bytes/1024/1024).toFixed(1) + ' MB';
+}
+
+function showScreen(id) {
+  document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+  document.getElementById(id)?.classList.add('active');
+}
+
+function indianStatesOptions(selected = '') {
+  const states = ['Andhra Pradesh','Arunachal Pradesh','Assam','Bihar','Chhattisgarh','Delhi','Goa',
+    'Gujarat','Haryana','Himachal Pradesh','Jharkhand','Karnataka','Kerala','Madhya Pradesh',
+    'Maharashtra','Manipur','Meghalaya','Mizoram','Nagaland','Odisha','Punjab','Rajasthan',
+    'Sikkim','Tamil Nadu','Telangana','Tripura','Uttar Pradesh','Uttarakhand','West Bengal',
+    'Chandigarh','Jammu & Kashmir','Ladakh','Puducherry','Other'];
+  return states.map(s => `<option value="${s}" ${s===selected?'selected':''}>${s}</option>`).join('');
+}
+</script>
+<script>
+  // Register Service Worker (PWA)
+  if ('serviceWorker' in navigator) {
+    window.addEventListener('load', () => {
+      navigator.serviceWorker.register('/sw.js')
+        .then(reg => console.log('✅ SW registered:', reg.scope))
+        .catch(err => console.log('SW error:', err));
+    });
+  }
+
+  // Handle ?page= URL param
+  const urlParams = new URLSearchParams(window.location.search);
+  const startPage = urlParams.get('page');
+  if (startPage) {
+    window.addEventListener('app-ready', () => showPage(startPage));
+  }
+</script>
+</body>
+</html>
