@@ -4,8 +4,8 @@ const router = express.Router();
 const multer = require('multer');
 const path = require('path');
 const fs = require('fs');
-const { groupsDb, contactsDb, templatesDb, messagesDb, scheduledDb, settingsDb } = require('../database');
-const { getState, getAllGroups, sendToGroups, logout } = require('../whatsapp');
+const { groupsDb, contactsDb, templatesDb, messagesDb, scheduledDb, settingsDb } = require('./database');
+const { getState, getAllGroups, sendToGroups, logout } = require('./whatsapp');
 const mime = require('mime-types');
 
 // Auth middleware
