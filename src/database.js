@@ -1,4 +1,4 @@
-2const path = require('path');
+const path = require('path');
 const fs = require('fs');
 
 const DB_PATH = path.join(__dirname, '../data/app.db');
