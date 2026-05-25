@@ -388,3 +388,50 @@ router.post('/groups/create-from-csv', requireAuth, upload.array('csvFiles', 20)
     req.files.forEach(f => { try { require('fs').unlinkSync(f.path); } catch(e){} });
   }
 });
+
+// ==================== BROADCAST TO CONTACTS ====================
+router.post('/broadcast-contacts', requireAuth, upload.single('media'), async (req, res) => {
+  try {
+    const contacts = JSON.parse(req.body.contacts || '[]');
+    const message = req.body.message || '';
+    if (!contacts.length) return res.status(400).json({ error: 'No contacts provided' });
+
+    const mediaPath = req.file ? req.file.path : null;
+    const mediaType = req.file ? req.file.mimetype : null;
+
+    res.json({ success: true, total: contacts.length });
+
+    if (sendIO) sendIO.emit('bc-start', { total: contacts.length });
+
+    const delay = parseInt(process.env.MESSAGE_DELAY || '10000');
+    let sent = 0, failed = 0;
+
+    const { sendTextMessage, sendMediaMessage } = require('./whatsapp');
+    const fs = require('fs');
+    const path = require('path');
+
+    for (let i = 0; i < contacts.length; i++) {
+      const c = contacts[i];
+      const jid = c.phone + '@s.whatsapp.net';
+      try {
+        if (mediaPath && fs.existsSync(mediaPath)) {
+          const buf = fs.readFileSync(mediaPath);
+          await sendMediaMessage(jid, buf, mediaType, path.basename(mediaPath), message);
+        } else {
+          await sendTextMessage(jid, message);
+        }
+        sent++;
+        if (sendIO) sendIO.emit('bc-progress', { current: i+1, total: contacts.length, name: c.name, status: 'success' });
+      } catch (e) {
+        failed++;
+        if (sendIO) sendIO.emit('bc-progress', { current: i+1, total: contacts.length, name: c.name, status: 'failed' });
+      }
+      if (i < contacts.length - 1) await new Promise(r => setTimeout(r, delay));
+    }
+
+    if (sendIO) sendIO.emit('bc-complete', { sent, failed });
+    if (mediaPath) try { require('fs').unlinkSync(mediaPath); } catch(e) {}
+  } catch (err) {
+    if (sendIO) sendIO.emit('bc-error', { error: err.message });
+  }
+});
