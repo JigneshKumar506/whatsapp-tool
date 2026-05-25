@@ -247,6 +247,8 @@ async function sendToGroups(groups, message, mediaPath, mediaType, onProgress) {
 }
 
 module.exports = {
+  sendTextMessage,
+  sendMediaMessage,
   createGroup,
   addParticipantsToGroup,
   connectWhatsApp,
