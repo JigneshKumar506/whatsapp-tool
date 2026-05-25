@@ -1,1184 +1,1399 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
-  <title>WA Broadcast Pro</title>
-  <meta name="theme-color" content="#0a0f1e" />
-  <meta name="apple-mobile-web-app-capable" content="yes" />
-  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
-  <meta name="apple-mobile-web-app-title" content="WA Broadcast" />
-  <link rel="manifest" href="/manifest.json" />
-  <link rel="preconnect" href="https://fonts.googleapis.com" />
-  <link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;500;600;700;800&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet" />
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/4.7.4/socket.io.min.js"></script>
-  <style>/* ===== ROOT VARIABLES ===== */
-:root {
-  --bg: #0a0f1e;
-  --bg2: #111827;
-  --bg3: #1a2235;
-  --card: #141d2e;
-  --card2: #1e2a40;
-  --border: #1f2d45;
-  --text: #e8edf5;
-  --text2: #8b9ab5;
-  --text3: #5a6b85;
-  --green: #00e676;
-  --green-dim: rgba(0,230,118,0.12);
-  --blue: #448aff;
-  --blue-dim: rgba(68,138,255,0.12);
-  --purple: #ce93d8;
-  --purple-dim: rgba(206,147,216,0.12);
-  --orange: #ffb74d;
-  --orange-dim: rgba(255,183,77,0.12);
-  --red: #ef5350;
-  --red-dim: rgba(239,83,80,0.12);
-  --accent: #00e676;
-  --accent2: #448aff;
-  --radius: 14px;
-  --radius-sm: 8px;
-  --shadow: 0 8px 32px rgba(0,0,0,0.4);
-  --sidebar-w: 260px;
-  --topbar-h: 60px;
-  --font-head: 'Syne', sans-serif;
-  --font-body: 'DM Sans', sans-serif;
-  --transition: 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no"/>
+<title>WA Broadcast Pro</title>
+<meta name="theme-color" content="#050a0e"/>
+<meta name="apple-mobile-web-app-capable" content="yes"/>
+<meta name="apple-mobile-web-app-title" content="WA Broadcast"/>
+<link rel="manifest" href="/manifest.json"/>
+<link rel="preconnect" href="https://fonts.googleapis.com"/>
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet"/>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/4.7.4/socket.io.min.js"></script>
+<style>
+:root{
+  --bg:#050a0e;--bg2:#0a1118;--bg3:#0f1923;--card:#111c27;--card2:#162130;
+  --border:#1a2d3d;--border2:#1f3548;
+  --text:#e2eaf2;--text2:#7a9bb5;--text3:#3d5a72;
+  --green:#00ff88;--green2:#00cc6a;--green-dim:rgba(0,255,136,.08);--green-glow:rgba(0,255,136,.15);
+  --blue:#38bdf8;--blue-dim:rgba(56,189,248,.08);
+  --amber:#fbbf24;--amber-dim:rgba(251,191,36,.08);
+  --red:#f87171;--red-dim:rgba(248,113,113,.08);
+  --purple:#a78bfa;--purple-dim:rgba(167,139,250,.08);
+  --radius:16px;--radius-sm:10px;--radius-xs:6px;
+  --shadow:0 20px 60px rgba(0,0,0,.5);
+  --font:'Space Grotesk',sans-serif;--mono:'JetBrains Mono',monospace;
+  --sidebar:72px;--topbar:58px;
 }
+*,::before,::after{box-sizing:border-box;margin:0;padding:0}
+html,body{height:100%;overflow:hidden;background:var(--bg)}
+body{font-family:var(--font);color:var(--text);font-size:14px;-webkit-font-smoothing:antialiased}
+button{cursor:pointer;border:none;outline:none;font-family:var(--font)}
+input,textarea,select{font-family:var(--font);outline:none;border:none}
+::-webkit-scrollbar{width:3px}::-webkit-scrollbar-track{background:transparent}::-webkit-scrollbar-thumb{background:var(--border2);border-radius:3px}
 
-/* ===== RESET ===== */
-*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
-html, body { height: 100%; overflow: hidden; }
-body { font-family: var(--font-body); background: var(--bg); color: var(--text); font-size: 14px; -webkit-font-smoothing: antialiased; }
-button { cursor: pointer; border: none; outline: none; font-family: var(--font-body); }
-input, textarea, select { font-family: var(--font-body); outline: none; border: none; }
-a { text-decoration: none; color: inherit; }
-::-webkit-scrollbar { width: 4px; }
-::-webkit-scrollbar-track { background: transparent; }
-::-webkit-scrollbar-thumb { background: var(--border); border-radius: 4px; }
+/* SCREENS */
+.screen{position:fixed;inset:0;display:none}
+.screen.active{display:flex}
+#app-screen{flex-direction:row}
 
-/* ===== SCREENS ===== */
-.screen { position: fixed; inset: 0; display: none; }
-.screen.active { display: flex; }
-#app-screen { flex-direction: row; }
+/* LOGIN */
+#login-screen{background:var(--bg);align-items:center;justify-content:center;overflow:hidden}
+.login-bg{position:absolute;inset:0;pointer-events:none;overflow:hidden}
+.lg-orb{position:absolute;border-radius:50%;filter:blur(100px);opacity:.12}
+.lg-orb:nth-child(1){width:500px;height:500px;background:var(--green);top:-150px;left:-150px;animation:drift 8s ease-in-out infinite}
+.lg-orb:nth-child(2){width:400px;height:400px;background:var(--blue);bottom:-120px;right:-120px;animation:drift 10s ease-in-out infinite reverse}
+.lg-orb:nth-child(3){width:250px;height:250px;background:var(--purple);top:50%;left:50%;transform:translate(-50%,-50%);animation:drift 6s ease-in-out infinite 2s}
+@keyframes drift{0%,100%{transform:translate(0,0)}50%{transform:translate(20px,-20px)}}
+.lg-orb:nth-child(3){animation:drift3 6s ease-in-out infinite 2s}
+@keyframes drift3{0%,100%{transform:translate(-50%,-50%)}50%{transform:translate(calc(-50% + 20px),calc(-50% - 20px))}}
 
-/* ===== LOGIN ===== */
-#login-screen {
-  background: var(--bg);
-  align-items: center;
-  justify-content: center;
-  overflow: hidden;
-}
-.login-bg { position: absolute; inset: 0; pointer-events: none; }
-.login-orb {
-  position: absolute;
-  border-radius: 50%;
-  filter: blur(80px);
-  opacity: 0.15;
-  animation: float 6s ease-in-out infinite;
-}
-.orb1 { width: 400px; height: 400px; background: var(--green); top: -100px; left: -100px; animation-delay: 0s; }
-.orb2 { width: 300px; height: 300px; background: var(--blue); bottom: -80px; right: -80px; animation-delay: 2s; }
-.orb3 { width: 200px; height: 200px; background: var(--purple); top: 50%; left: 50%; transform: translate(-50%,-50%); animation-delay: 4s; }
-@keyframes float { 0%,100% { transform: translateY(0); } 50% { transform: translateY(-20px); } }
+.login-wrap{position:relative;width:100%;max-width:400px;margin:16px}
+.login-card{background:rgba(17,28,39,.8);backdrop-filter:blur(20px);border:1px solid var(--border2);border-radius:24px;padding:44px 40px;box-shadow:var(--shadow);animation:popIn .5s cubic-bezier(.34,1.56,.64,1)}
+@keyframes popIn{from{opacity:0;transform:scale(.9) translateY(20px)}to{opacity:1;transform:scale(1) translateY(0)}}
+.login-brand{text-align:center;margin-bottom:36px}
+.login-brand .icon{font-size:52px;display:block;margin-bottom:14px;animation:pulse 3s ease-in-out infinite}
+@keyframes pulse{0%,100%{transform:scale(1)}50%{transform:scale(1.06)}}
+.login-brand h1{font-size:26px;font-weight:700;letter-spacing:-0.5px}
+.login-brand h1 em{color:var(--green);font-style:normal}
+.login-brand p{color:var(--text2);font-size:13px;margin-top:6px}
+.field{margin-bottom:18px}
+.field label{display:block;font-size:11px;font-weight:600;color:var(--text3);text-transform:uppercase;letter-spacing:1px;margin-bottom:8px}
+.field input{width:100%;background:var(--bg3);border:1px solid var(--border);border-radius:var(--radius-sm);padding:13px 16px;color:var(--text);font-size:15px;transition:all .2s}
+.field input:focus{border-color:var(--green);box-shadow:0 0 0 3px var(--green-glow)}
+.btn-login{width:100%;background:var(--green);color:#020a05;padding:14px;border-radius:var(--radius-sm);font-weight:700;font-size:15px;letter-spacing:.3px;transition:all .2s;display:flex;align-items:center;justify-content:center;gap:8px}
+.btn-login:hover{background:#33ffaa;transform:translateY(-2px);box-shadow:0 8px 24px rgba(0,255,136,.3)}
+.btn-login:active{transform:translateY(0)}
+.login-err{color:var(--red);font-size:12px;text-align:center;margin-top:10px;display:none}
 
-.login-box {
-  position: relative;
-  background: var(--card);
-  border: 1px solid var(--border);
-  border-radius: 24px;
-  padding: 48px 40px;
-  width: 100%;
-  max-width: 420px;
-  margin: 16px;
-  box-shadow: var(--shadow);
-  animation: slideUp 0.5s cubic-bezier(0.4,0,0.2,1);
-}
-@keyframes slideUp { from { opacity:0; transform:translateY(30px); } to { opacity:1; transform:translateY(0); } }
+/* SIDEBAR — icon only */
+.sidebar{width:var(--sidebar);background:var(--card);border-right:1px solid var(--border);display:flex;flex-direction:column;align-items:center;padding:12px 0;height:100vh;flex-shrink:0;z-index:100;position:relative}
+.sb-logo{width:44px;height:44px;background:var(--green-dim);border:1px solid rgba(0,255,136,.2);border-radius:12px;display:flex;align-items:center;justify-content:center;font-size:22px;margin-bottom:20px;cursor:pointer}
+.sb-nav{display:flex;flex-direction:column;gap:4px;flex:1;width:100%;padding:0 10px}
+.sb-item{width:100%;aspect-ratio:1;border-radius:12px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:3px;background:none;color:var(--text3);transition:all .2s;position:relative;padding:8px 4px;cursor:pointer}
+.sb-item svg{width:20px;height:20px;flex-shrink:0}
+.sb-item span{font-size:9px;font-weight:600;letter-spacing:.3px;text-transform:uppercase}
+.sb-item:hover{background:var(--bg3);color:var(--text2)}
+.sb-item.active{background:var(--green-dim);color:var(--green)}
+.sb-item .badge{position:absolute;top:6px;right:6px;background:var(--green);color:#020a05;font-size:9px;font-weight:700;min-width:16px;height:16px;border-radius:8px;display:flex;align-items:center;justify-content:center;padding:0 3px}
+.sb-wa{margin-top:auto;margin-bottom:8px;width:44px;height:44px;border-radius:50%;display:flex;align-items:center;justify-content:center;position:relative}
+.sb-wa-dot{width:10px;height:10px;border-radius:50%;background:var(--text3);position:absolute;bottom:2px;right:2px;border:2px solid var(--card)}
+.sb-wa-dot.on{background:var(--green);animation:glow 2s infinite}
+@keyframes glow{0%,100%{box-shadow:0 0 4px var(--green)}50%{box-shadow:0 0 10px var(--green)}}
+.sb-wa-dot.spin{background:var(--amber);animation:blink .8s infinite}
+@keyframes blink{0%,100%{opacity:1}50%{opacity:.3}}
+.sb-footer{padding:0 10px;margin-bottom:4px;width:100%}
+.sb-logout{width:100%;aspect-ratio:1;border-radius:12px;background:none;color:var(--text3);display:flex;flex-direction:column;align-items:center;justify-content:center;gap:3px;font-size:9px;font-weight:600;letter-spacing:.3px;text-transform:uppercase;transition:all .2s}
+.sb-logout svg{width:18px;height:18px}
+.sb-logout:hover{background:var(--red-dim);color:var(--red)}
 
-.login-logo { text-align: center; margin-bottom: 36px; }
-.logo-icon { font-size: 48px; margin-bottom: 12px; animation: pulse 2s ease-in-out infinite; }
-@keyframes pulse { 0%,100% { transform: scale(1); } 50% { transform: scale(1.05); } }
-.login-logo h1 { font-family: var(--font-head); font-size: 28px; font-weight: 800; letter-spacing: -0.5px; }
-.login-logo h1 span { color: var(--green); }
-.login-logo p { color: var(--text2); margin-top: 6px; font-size: 13px; }
+/* MAIN */
+.main{flex:1;display:flex;flex-direction:column;overflow:hidden;min-width:0}
 
-.input-group { margin-bottom: 20px; }
-.input-group label { display: block; margin-bottom: 8px; font-size: 12px; font-weight: 600; color: var(--text2); text-transform: uppercase; letter-spacing: 0.8px; }
-.input-group input {
-  width: 100%;
-  background: var(--bg3);
-  border: 1px solid var(--border);
-  border-radius: var(--radius-sm);
-  padding: 14px 16px;
-  color: var(--text);
-  font-size: 15px;
-  transition: border-color var(--transition);
-}
-.input-group input:focus { border-color: var(--green); }
+/* TOPBAR */
+.topbar{height:var(--topbar);background:var(--card);border-bottom:1px solid var(--border);display:flex;align-items:center;padding:0 24px;gap:16px;flex-shrink:0}
+.topbar-menu{display:none;background:none;color:var(--text2);padding:6px}
+.topbar-menu svg{width:20px;height:20px}
+.topbar-title{flex:1}
+.topbar-title h2{font-size:17px;font-weight:700;letter-spacing:-.3px}
+.topbar-title p{font-size:12px;color:var(--text3);margin-top:1px}
+.topbar-right{display:flex;align-items:center;gap:10px}
+.wa-pill{display:flex;align-items:center;gap:6px;background:var(--bg3);border:1px solid var(--border);border-radius:20px;padding:6px 12px;font-size:12px;font-weight:600;cursor:pointer;transition:all .2s}
+.wa-pill:hover{border-color:var(--green)}
+.wa-pill-dot{width:7px;height:7px;border-radius:50%;background:var(--text3)}
+.wa-pill-dot.on{background:var(--green);box-shadow:0 0 6px var(--green)}
+.wa-pill-dot.spin{background:var(--amber);animation:blink .8s infinite}
 
-/* ===== BUTTONS ===== */
-.btn-primary {
-  display: inline-flex; align-items: center; gap: 8px;
-  background: var(--green); color: #0a1a0f;
-  padding: 13px 24px; border-radius: var(--radius-sm);
-  font-weight: 700; font-size: 14px;
-  transition: all var(--transition);
-}
-.btn-primary:hover { background: #33eb91; transform: translateY(-1px); box-shadow: 0 6px 20px rgba(0,230,118,0.3); }
-.btn-primary:active { transform: translateY(0); }
-.btn-full { width: 100%; justify-content: center; }
+/* PAGES */
+.content{flex:1;overflow:hidden;position:relative}
+.page{position:absolute;inset:0;overflow-y:auto;padding:28px;display:none}
+.page.active{display:block}
 
-.btn-secondary {
-  display: inline-flex; align-items: center; gap: 8px;
-  background: var(--bg3); color: var(--text);
-  border: 1px solid var(--border);
-  padding: 12px 20px; border-radius: var(--radius-sm);
-  font-weight: 500; font-size: 14px;
-  transition: all var(--transition);
-}
-.btn-secondary:hover { background: var(--card2); border-color: var(--text3); }
-.btn-small { background: var(--blue); color: white; padding: 8px 16px; border-radius: 6px; font-size: 13px; font-weight: 600; transition: all var(--transition); }
-.btn-small:hover { background: #5a9bff; }
-.btn-danger-small { background: var(--red-dim); color: var(--red); border: 1px solid var(--red); padding: 8px 16px; border-radius: 6px; font-size: 13px; font-weight: 600; }
-.btn-danger-small:hover { background: var(--red); color: white; }
+/* PAGE HEADER */
+.ph{margin-bottom:24px;display:flex;align-items:flex-start;justify-content:space-between;flex-wrap:wrap;gap:12px}
+.ph-left h1{font-size:24px;font-weight:700;letter-spacing:-.5px;margin-bottom:4px}
+.ph-left p{color:var(--text2);font-size:13px}
+.ph-right{display:flex;gap:10px;flex-wrap:wrap}
 
-.error-msg { color: var(--red); font-size: 13px; margin-top: 10px; text-align: center; }
-.hidden { display: none !important; }
+/* CARDS */
+.card{background:var(--card);border:1px solid var(--border);border-radius:var(--radius);padding:22px}
+.card+.card{margin-top:14px}
 
-/* ===== SIDEBAR ===== */
-.sidebar {
-  width: var(--sidebar-w);
-  background: var(--card);
-  border-right: 1px solid var(--border);
-  display: flex; flex-direction: column;
-  height: 100vh;
-  overflow-y: auto;
-  flex-shrink: 0;
-  transition: transform var(--transition);
-  z-index: 100;
-}
-.sidebar-header {
-  padding: 20px;
-  border-bottom: 1px solid var(--border);
-  display: flex; align-items: center; justify-content: space-between;
-}
-.brand { display: flex; align-items: center; gap: 12px; }
-.brand-icon { font-size: 28px; }
-.brand h2 { font-family: var(--font-head); font-size: 16px; font-weight: 800; line-height: 1; }
-.brand span { color: var(--green); font-size: 10px; font-weight: 700; letter-spacing: 2px; text-transform: uppercase; }
-.sidebar-close { display: none; background: none; color: var(--text2); font-size: 18px; }
+/* STATS */
+.stats{display:grid;grid-template-columns:repeat(4,1fr);gap:14px;margin-bottom:24px}
+.stat{background:var(--card);border:1px solid var(--border);border-radius:var(--radius);padding:20px 18px;position:relative;overflow:hidden;transition:transform .2s}
+.stat:hover{transform:translateY(-2px)}
+.stat::before{content:'';position:absolute;top:0;left:0;right:0;height:2px}
+.stat.g::before{background:linear-gradient(90deg,var(--green),transparent)}
+.stat.b::before{background:linear-gradient(90deg,var(--blue),transparent)}
+.stat.a::before{background:linear-gradient(90deg,var(--amber),transparent)}
+.stat.p::before{background:linear-gradient(90deg,var(--purple),transparent)}
+.stat-num{font-size:32px;font-weight:700;font-family:var(--mono);letter-spacing:-1px;line-height:1}
+.stat.g .stat-num{color:var(--green)}
+.stat.b .stat-num{color:var(--blue)}
+.stat.a .stat-num{color:var(--amber)}
+.stat.p .stat-num{color:var(--purple)}
+.stat-label{font-size:11px;color:var(--text2);margin-top:6px;font-weight:600;text-transform:uppercase;letter-spacing:.8px}
+.stat-icon{position:absolute;bottom:14px;right:16px;font-size:28px;opacity:.15}
 
-.wa-status-card {
-  margin: 12px;
-  background: var(--bg3);
-  border: 1px solid var(--border);
-  border-radius: var(--radius-sm);
-  padding: 12px 14px;
-  display: flex; align-items: center; gap: 10px;
-}
-.wa-status-dot {
-  width: 10px; height: 10px; border-radius: 50%; flex-shrink: 0;
-  background: var(--text3);
-  transition: background var(--transition);
-}
-.wa-status-dot.connected { background: var(--green); box-shadow: 0 0 8px var(--green); animation: blink 2s ease-in-out infinite; }
-.wa-status-dot.connecting { background: var(--orange); animation: blink 0.8s ease-in-out infinite; }
-.wa-status-dot.qr { background: var(--blue); animation: blink 0.8s ease-in-out infinite; }
-@keyframes blink { 0%,100% { opacity:1; } 50% { opacity:0.4; } }
-.wa-status-info { flex: 1; }
-.wa-status-label { display: block; font-size: 13px; font-weight: 600; }
-.wa-status-sub { font-size: 11px; color: var(--text3); }
-.wa-qr-btn { background: var(--blue); color: white; padding: 4px 10px; border-radius: 5px; font-size: 11px; font-weight: 700; }
+/* QUICK ACTIONS */
+.qa-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin-bottom:24px}
+.qa{background:var(--card);border:1px solid var(--border);border-radius:var(--radius);padding:18px 12px;text-align:center;cursor:pointer;transition:all .2s;color:var(--text2)}
+.qa:hover{border-color:var(--green);color:var(--green);transform:translateY(-2px);background:var(--green-dim)}
+.qa-icon{font-size:26px;margin-bottom:8px}
+.qa span{font-size:12px;font-weight:600;text-transform:uppercase;letter-spacing:.5px;display:block}
 
-.nav-section { padding: 12px 8px 4px; }
-.nav-label { font-size: 10px; font-weight: 700; color: var(--text3); text-transform: uppercase; letter-spacing: 1.5px; padding: 0 8px; display: block; margin-bottom: 4px; }
-.nav-item {
-  display: flex; align-items: center; gap: 10px;
-  width: 100%; background: none;
-  padding: 10px 12px; border-radius: var(--radius-sm);
-  color: var(--text2); font-size: 14px; font-weight: 500;
-  transition: all var(--transition);
-  margin-bottom: 2px;
-  position: relative;
-}
-.nav-item:hover { background: var(--bg3); color: var(--text); }
-.nav-item.active { background: var(--green-dim); color: var(--green); font-weight: 600; }
-.nav-badge {
-  margin-left: auto;
-  background: var(--bg3);
-  color: var(--text2);
-  font-size: 11px; font-weight: 700;
-  padding: 2px 7px; border-radius: 20px;
-}
-.nav-item.active .nav-badge { background: var(--green-dim); color: var(--green); }
+/* BUTTONS */
+.btn{display:inline-flex;align-items:center;gap:7px;padding:10px 18px;border-radius:var(--radius-sm);font-weight:600;font-size:13px;transition:all .2s;cursor:pointer;white-space:nowrap}
+.btn-primary{background:var(--green);color:#020a05}
+.btn-primary:hover{background:#33ffaa;transform:translateY(-1px);box-shadow:0 6px 20px rgba(0,255,136,.25)}
+.btn-outline{background:transparent;color:var(--text2);border:1px solid var(--border2)}
+.btn-outline:hover{background:var(--card2);border-color:var(--text3);color:var(--text)}
+.btn-danger{background:var(--red-dim);color:var(--red);border:1px solid rgba(248,113,113,.2)}
+.btn-danger:hover{background:var(--red);color:white}
+.btn-sm{padding:7px 13px;font-size:12px}
+.btn-full{width:100%;justify-content:center}
+.btn svg{width:15px;height:15px}
 
-.sidebar-footer { margin-top: auto; padding: 16px; border-top: 1px solid var(--border); }
-.btn-logout {
-  display: flex; align-items: center; gap: 8px;
-  background: var(--red-dim); color: var(--red);
-  width: 100%; padding: 10px 14px; border-radius: var(--radius-sm);
-  font-size: 13px; font-weight: 600;
-  transition: all var(--transition);
-}
-.btn-logout:hover { background: var(--red); color: white; }
+/* FORM */
+.flabel{display:block;font-size:11px;font-weight:600;color:var(--text3);text-transform:uppercase;letter-spacing:.8px;margin-bottom:8px}
+.finput{width:100%;background:var(--bg3);border:1px solid var(--border);border-radius:var(--radius-sm);padding:11px 14px;color:var(--text);font-size:14px;transition:all .2s}
+.finput:focus{border-color:var(--green);box-shadow:0 0 0 3px var(--green-glow)}
+.ftextarea{width:100%;background:var(--bg3);border:1px solid var(--border);border-radius:var(--radius-sm);padding:12px 14px;color:var(--text);font-size:14px;resize:vertical;min-height:110px;line-height:1.6;transition:all .2s}
+.ftextarea:focus{border-color:var(--green);box-shadow:0 0 0 3px var(--green-glow)}
+.fselect{width:100%;background:var(--bg3);border:1px solid var(--border);border-radius:var(--radius-sm);padding:11px 14px;color:var(--text);font-size:14px;appearance:none;cursor:pointer}
+.fgroup{margin-bottom:18px}
+.frow{display:grid;grid-template-columns:1fr 1fr;gap:14px}
 
-.sidebar-overlay {
-  display: none; position: fixed; inset: 0;
-  background: rgba(0,0,0,0.6); z-index: 99;
-}
+/* TABS */
+.tabs{display:flex;background:var(--bg3);border-radius:var(--radius-sm);padding:4px;gap:4px;margin-bottom:16px}
+.tab{flex:1;padding:8px;border-radius:7px;background:none;color:var(--text3);font-size:13px;font-weight:600;transition:all .2s}
+.tab.active{background:var(--card);color:var(--text);box-shadow:0 2px 8px rgba(0,0,0,.3)}
 
-/* ===== MAIN CONTENT ===== */
-.main-content {
-  flex: 1; display: flex; flex-direction: column;
-  overflow: hidden; min-width: 0;
-}
+/* GROUPS LIST */
+.group-list{display:flex;flex-direction:column;gap:8px}
+.g-item{background:var(--card);border:1px solid var(--border);border-radius:var(--radius);padding:14px 18px;display:flex;align-items:center;gap:14px;transition:all .2s}
+.g-item:hover{border-color:var(--border2);background:var(--card2)}
+.g-item.off{opacity:.45}
+.g-avatar{width:42px;height:42px;border-radius:11px;background:var(--green-dim);border:1px solid rgba(0,255,136,.15);display:flex;align-items:center;justify-content:center;font-size:18px;flex-shrink:0}
+.g-info{flex:1;min-width:0}
+.g-name{font-weight:600;font-size:14px;margin-bottom:4px;display:flex;align-items:center;gap:8px}
+.g-meta{display:flex;gap:8px;flex-wrap:wrap;align-items:center}
+.chip{font-size:10px;font-weight:700;padding:2px 8px;border-radius:20px;letter-spacing:.3px}
+.chip-green{background:var(--green-dim);color:var(--green);border:1px solid rgba(0,255,136,.15)}
+.chip-blue{background:var(--blue-dim);color:var(--blue);border:1px solid rgba(56,189,248,.15)}
+.chip-gray{background:var(--bg3);color:var(--text3);border:1px solid var(--border)}
+.chip-amber{background:var(--amber-dim);color:var(--amber)}
+.g-actions{display:flex;gap:6px}
+.icon-btn{width:32px;height:32px;border-radius:8px;display:flex;align-items:center;justify-content:center;font-size:15px;transition:all .2s;background:var(--bg3)}
+.icon-btn:hover{transform:scale(1.1)}
+.icon-btn.on{background:var(--green-dim);color:var(--green)}
+.icon-btn.off{background:var(--bg3);color:var(--text3)}
+.icon-btn.edit{color:var(--blue)}
+.icon-btn.del{color:var(--red)}
+.icon-btn svg{width:14px;height:14px}
 
-/* ===== TOPBAR ===== */
-.topbar {
-  height: var(--topbar-h);
-  background: var(--card);
-  border-bottom: 1px solid var(--border);
-  display: flex; align-items: center; gap: 16px;
-  padding: 0 20px; flex-shrink: 0;
-}
-.menu-btn {
-  display: none; flex-direction: column; gap: 5px;
-  background: none; padding: 6px;
-}
-.menu-btn span { display: block; width: 22px; height: 2px; background: var(--text); border-radius: 2px; transition: all var(--transition); }
-.topbar-title { font-family: var(--font-head); font-size: 16px; font-weight: 700; flex: 1; }
-.topbar-right { display: flex; align-items: center; gap: 12px; }
-.wa-mini-status { display: flex; align-items: center; gap: 6px; }
-.dot { width: 8px; height: 8px; border-radius: 50%; background: var(--text3); }
-.dot.connected { background: var(--green); animation: blink 2s infinite; }
-.dot.connecting { background: var(--orange); animation: blink 0.8s infinite; }
+/* SEARCH */
+.search-wrap{position:relative;margin-bottom:16px}
+.search-wrap svg{position:absolute;left:12px;top:50%;transform:translateY(-50%);width:16px;height:16px;color:var(--text3);pointer-events:none}
+.search-input{width:100%;background:var(--card);border:1px solid var(--border);border-radius:var(--radius-sm);padding:10px 14px 10px 38px;color:var(--text);font-size:14px;transition:all .2s}
+.search-input:focus{border-color:var(--green)}
 
-/* ===== PAGES ===== */
-.page { display: none; flex: 1; overflow-y: auto; padding: 24px; }
-.page.active { display: block; }
+/* SEND PAGE */
+.send-layout{display:grid;grid-template-columns:1fr 340px;gap:20px}
+.target-grid{display:flex;gap:8px;margin-bottom:14px}
+.target-btn{flex:1;padding:10px;border-radius:var(--radius-sm);background:var(--bg3);border:1px solid var(--border);color:var(--text3);font-size:13px;font-weight:600;transition:all .2s}
+.target-btn.active{background:var(--green-dim);border-color:rgba(0,255,136,.3);color:var(--green)}
+.group-select-list{max-height:200px;overflow-y:auto;display:flex;flex-direction:column;gap:6px;margin-top:10px}
+.gs-item{display:flex;align-items:center;gap:10px;padding:9px 12px;background:var(--bg3);border:1px solid var(--border);border-radius:var(--radius-sm);cursor:pointer;transition:all .2s}
+.gs-item:hover{border-color:var(--green)}
+.gs-item input[type=checkbox]{accent-color:var(--green);width:15px;height:15px}
+.gs-item label{flex:1;cursor:pointer;font-size:13px}
+.gs-count{font-size:11px;color:var(--text3)}
+.media-drop{border:2px dashed var(--border);border-radius:var(--radius-sm);padding:28px;text-align:center;cursor:pointer;transition:all .2s}
+.media-drop:hover{border-color:var(--green);background:var(--green-dim)}
+.media-drop-icon{font-size:30px;margin-bottom:8px}
+.media-drop p{font-size:13px;color:var(--text2)}
+.media-drop span{font-size:11px;color:var(--text3)}
+.media-prev{display:flex;align-items:center;gap:12px;background:var(--bg3);padding:12px;border-radius:var(--radius-sm)}
+.media-prev img{width:48px;height:48px;object-fit:cover;border-radius:6px}
+.media-prev-info{flex:1;min-width:0}
+.media-prev-name{font-size:13px;font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.media-prev-size{font-size:11px;color:var(--text3)}
+.side-card{background:var(--card);border:1px solid var(--border);border-radius:var(--radius);padding:20px}
+.side-card+.side-card{margin-top:14px}
+.side-title{font-size:12px;font-weight:700;color:var(--text2);text-transform:uppercase;letter-spacing:.8px;margin-bottom:12px}
+.char-count{font-size:11px;color:var(--text3);text-align:right;margin-top:5px}
 
-.page-header { margin-bottom: 24px; }
-.page-header h1 { font-family: var(--font-head); font-size: 26px; font-weight: 800; margin-bottom: 4px; }
-.page-header p { color: var(--text2); font-size: 14px; }
+/* PROGRESS */
+.progress-card{background:var(--card);border:1px solid var(--blue);border-radius:var(--radius);padding:18px;margin-bottom:18px;display:none}
+.progress-card.show{display:block;animation:slideDown .3s ease}
+@keyframes slideDown{from{opacity:0;transform:translateY(-10px)}to{opacity:1;transform:translateY(0)}}
+.prog-header{display:flex;justify-content:space-between;align-items:center;margin-bottom:12px}
+.prog-title{font-weight:700;font-size:14px}
+.prog-count{font-family:var(--mono);font-size:18px;font-weight:700}
+.prog-bar-wrap{background:var(--bg3);border-radius:20px;height:6px;overflow:hidden;margin-bottom:12px}
+.prog-bar{height:100%;background:linear-gradient(90deg,var(--blue),var(--green));border-radius:20px;transition:width .5s ease;width:0%}
+.prog-log{display:flex;flex-direction:column;gap:3px;max-height:120px;overflow-y:auto}
+.plog-item{font-size:12px;font-family:var(--mono);display:flex;align-items:center;gap:6px;padding:2px 0}
+.plog-item.ok{color:var(--green)}
+.plog-item.fail{color:var(--red)}
+.plog-item.wait{color:var(--blue)}
 
-.page-actions { display: flex; gap: 10px; flex-wrap: wrap; margin-bottom: 16px; }
+/* TEMPLATES */
+.tpl-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(260px,1fr));gap:14px}
+.tpl-card{background:var(--card);border:1px solid var(--border);border-radius:var(--radius);padding:18px;cursor:pointer;transition:all .2s;display:flex;flex-direction:column}
+.tpl-card:hover{border-color:var(--green);transform:translateY(-2px)}
+.tpl-name{font-weight:700;font-size:14px;margin-bottom:8px;display:flex;align-items:center;gap:8px}
+.tpl-body{font-size:13px;color:var(--text2);line-height:1.5;flex:1;display:-webkit-box;-webkit-line-clamp:3;-webkit-box-orient:vertical;overflow:hidden;margin-bottom:12px}
+.tpl-footer{display:flex;gap:6px;justify-content:flex-end;margin-top:auto}
 
-/* ===== CARDS ===== */
-.card {
-  background: var(--card);
-  border: 1px solid var(--border);
-  border-radius: var(--radius);
-  padding: 24px;
-  margin-bottom: 16px;
-}
+/* HISTORY */
+.hist-stats{display:flex;gap:12px;margin-bottom:20px;flex-wrap:wrap}
+.hs{background:var(--card);border:1px solid var(--border);border-radius:var(--radius-sm);padding:14px 20px;flex:1;min-width:100px;text-align:center}
+.hs-num{font-family:var(--mono);font-size:26px;font-weight:700}
+.hs-label{font-size:11px;color:var(--text2);margin-top:3px}
+.hist-list{display:flex;flex-direction:column;gap:10px}
+.hist-item{background:var(--card);border:1px solid var(--border);border-radius:var(--radius);padding:16px 20px}
+.hist-top{display:flex;align-items:center;justify-content:space-between;margin-bottom:8px}
+.hist-msg{font-size:13px;color:var(--text2);line-height:1.5;margin-bottom:10px}
+.hist-pills{display:flex;gap:8px;flex-wrap:wrap}
+.pill{font-size:11px;font-weight:700;padding:3px 9px;border-radius:20px}
+.pill-ok{background:var(--green-dim);color:var(--green)}
+.pill-fail{background:var(--red-dim);color:var(--red)}
+.pill-time{background:var(--bg3);color:var(--text3)}
+.pill-type{background:var(--blue-dim);color:var(--blue)}
+.status-badge{font-size:11px;font-weight:700;padding:3px 9px;border-radius:20px}
+.sb-done{background:var(--green-dim);color:var(--green)}
+.sb-sending{background:var(--blue-dim);color:var(--blue)}
+.sb-fail{background:var(--red-dim);color:var(--red)}
 
-/* ===== STATS ===== */
-.stats-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 14px; margin-bottom: 28px; }
-.stat-card {
-  background: var(--card);
-  border: 1px solid var(--border);
-  border-radius: var(--radius);
-  padding: 20px;
-  display: flex; align-items: center; gap: 16px;
-  transition: transform var(--transition);
-}
-.stat-card:hover { transform: translateY(-2px); }
-.stat-card.green { border-color: rgba(0,230,118,0.2); }
-.stat-card.blue { border-color: rgba(68,138,255,0.2); }
-.stat-card.purple { border-color: rgba(206,147,216,0.2); }
-.stat-card.orange { border-color: rgba(255,183,77,0.2); }
-.stat-icon { font-size: 28px; }
-.stat-num { display: block; font-family: var(--font-head); font-size: 28px; font-weight: 800; line-height: 1; }
-.stat-card.green .stat-num { color: var(--green); }
-.stat-card.blue .stat-num { color: var(--blue); }
-.stat-card.purple .stat-num { color: var(--purple); }
-.stat-card.orange .stat-num { color: var(--orange); }
-.stat-label { font-size: 12px; color: var(--text2); margin-top: 4px; font-weight: 500; }
+/* SCHEDULE */
+.sched-list{display:flex;flex-direction:column;gap:10px}
+.sched-item{background:var(--card);border:1px solid var(--border);border-radius:var(--radius);padding:16px 20px;display:flex;align-items:center;gap:16px}
+.sched-time{text-align:center;min-width:65px}
+.sched-time-val{font-family:var(--mono);font-size:20px;font-weight:700;color:var(--amber);line-height:1}
+.sched-time-date{font-size:10px;color:var(--text3);margin-top:3px}
+.sched-info{flex:1;min-width:0}
+.sched-msg{font-size:13px;font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;margin-bottom:4px}
+.sched-meta{font-size:12px;color:var(--text3);display:flex;gap:10px}
 
-/* ===== QUICK ACTIONS ===== */
-.section-title { font-family: var(--font-head); font-size: 14px; font-weight: 700; color: var(--text2); text-transform: uppercase; letter-spacing: 1px; margin-bottom: 14px; }
-.quick-actions { display: grid; grid-template-columns: repeat(4,1fr); gap: 12px; margin-bottom: 28px; }
-.qa-btn {
-  background: var(--card);
-  border: 1px solid var(--border);
-  border-radius: var(--radius);
-  padding: 20px 10px;
-  display: flex; flex-direction: column; align-items: center; gap: 8px;
-  color: var(--text); font-size: 13px; font-weight: 600;
-  transition: all var(--transition);
-}
-.qa-btn:hover { background: var(--card2); border-color: var(--green); color: var(--green); transform: translateY(-2px); }
-.qa-icon { font-size: 24px; }
+/* SETTINGS */
+.setting-group{background:var(--card);border:1px solid var(--border);border-radius:var(--radius);overflow:hidden;margin-bottom:16px}
+.setting-item{display:flex;align-items:center;gap:16px;padding:18px 22px;border-bottom:1px solid var(--border);flex-wrap:wrap}
+.setting-item:last-child{border-bottom:none}
+.si-info{flex:1;min-width:160px}
+.si-info label{display:block;font-size:14px;font-weight:600;margin-bottom:4px}
+.si-info p{font-size:12px;color:var(--text3);line-height:1.5}
+.si-input{background:var(--bg3);border:1px solid var(--border);border-radius:var(--radius-xs);padding:8px 12px;color:var(--text);font-size:13px;width:110px}
+.si-code{font-family:var(--mono);font-size:12px;color:var(--text3);background:var(--bg3);padding:5px 10px;border-radius:var(--radius-xs)}
 
-/* ===== RECENT LIST ===== */
-.recent-list { display: flex; flex-direction: column; gap: 10px; }
-.recent-item {
-  background: var(--card);
-  border: 1px solid var(--border);
-  border-radius: var(--radius-sm);
-  padding: 14px 16px;
-  display: flex; align-items: center; gap: 12px;
-}
-.recent-icon { font-size: 20px; }
-.recent-info { flex: 1; min-width: 0; }
-.recent-msg { font-size: 13px; font-weight: 500; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-.recent-meta { font-size: 11px; color: var(--text3); margin-top: 3px; }
-.recent-status { font-size: 11px; font-weight: 700; padding: 3px 8px; border-radius: 20px; white-space: nowrap; }
-.status-completed { background: var(--green-dim); color: var(--green); }
-.status-failed { background: var(--red-dim); color: var(--red); }
-.status-sending { background: var(--blue-dim); color: var(--blue); }
+/* CONTACTS PAGE */
+.contacts-list{display:flex;flex-direction:column;gap:7px}
+.ct-item{background:var(--card);border:1px solid var(--border);border-radius:var(--radius-sm);padding:11px 16px;display:flex;align-items:center;gap:12px;transition:all .2s}
+.ct-item:hover{border-color:var(--border2)}
+.ct-av{width:36px;height:36px;border-radius:50%;background:var(--purple-dim);display:flex;align-items:center;justify-content:center;font-size:15px;flex-shrink:0;color:var(--purple)}
+.ct-info{flex:1;min-width:0}
+.ct-name{font-size:13px;font-weight:600}
+.ct-phone{font-size:12px;color:var(--text3);font-family:var(--mono)}
 
-/* ===== SEND PROGRESS ===== */
-.send-progress-card {
-  background: var(--card);
-  border: 1px solid var(--blue);
-  border-radius: var(--radius);
-  padding: 20px;
-  margin-bottom: 20px;
-  animation: slideDown 0.3s ease;
-}
-@keyframes slideDown { from { opacity:0; transform:translateY(-10px); } to { opacity:1; transform:translateY(0); } }
-.progress-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px; }
-.progress-title { font-weight: 700; color: var(--blue); }
-.progress-count { font-family: var(--font-head); font-size: 18px; font-weight: 800; }
-.progress-bar-wrap { background: var(--bg3); border-radius: 20px; height: 8px; overflow: hidden; margin-bottom: 12px; }
-.progress-bar { height: 100%; background: linear-gradient(90deg, var(--blue), var(--green)); border-radius: 20px; transition: width 0.5s ease; }
-.progress-log { display: flex; flex-direction: column; gap: 4px; max-height: 120px; overflow-y: auto; }
-.progress-log-item { font-size: 12px; display: flex; align-items: center; gap: 6px; }
-.progress-log-item.success { color: var(--green); }
-.progress-log-item.failed { color: var(--red); }
-
-/* ===== FORM ===== */
-.form-section { margin-bottom: 20px; }
-.form-label { display: block; font-size: 12px; font-weight: 700; color: var(--text2); text-transform: uppercase; letter-spacing: 0.8px; margin-bottom: 10px; }
-.optional { text-transform: none; font-weight: 400; color: var(--text3); letter-spacing: 0; }
-.form-textarea {
-  width: 100%; background: var(--bg3); border: 1px solid var(--border);
-  border-radius: var(--radius-sm); padding: 14px; color: var(--text);
-  font-size: 14px; resize: vertical; min-height: 120px;
-  transition: border-color var(--transition); line-height: 1.6;
-}
-.form-textarea:focus { border-color: var(--accent); }
-.form-select {
-  width: 100%; background: var(--bg3); border: 1px solid var(--border);
-  border-radius: var(--radius-sm); padding: 12px 14px; color: var(--text);
-  font-size: 14px; appearance: none; cursor: pointer;
-}
-.form-select:focus { border-color: var(--accent); }
-.char-count { font-size: 11px; color: var(--text3); margin-top: 6px; text-align: right; }
-
-/* TARGET TABS */
-.target-tabs { display: flex; gap: 8px; margin-bottom: 12px; }
-.target-tab {
-  flex: 1; padding: 10px; border-radius: var(--radius-sm);
-  background: var(--bg3); border: 1px solid var(--border);
-  color: var(--text2); font-size: 13px; font-weight: 600;
-  transition: all var(--transition);
-}
-.target-tab.active { background: var(--green-dim); border-color: var(--green); color: var(--green); }
-
-.group-list { max-height: 200px; overflow-y: auto; display: flex; flex-direction: column; gap: 6px; margin-top: 10px; }
-.group-check-item {
-  display: flex; align-items: center; gap: 10px;
-  padding: 10px 12px; border-radius: var(--radius-sm);
-  background: var(--bg3); border: 1px solid var(--border);
-  cursor: pointer; transition: all var(--transition);
-}
-.group-check-item:hover { border-color: var(--green); }
-.group-check-item input[type="checkbox"] { accent-color: var(--green); width: 16px; height: 16px; }
-.group-check-item label { flex: 1; cursor: pointer; font-size: 13px; }
-.group-check-count { font-size: 11px; color: var(--text3); }
-.selected-info { font-size: 12px; color: var(--text3); margin-top: 8px; }
-
-/* MEDIA DROP */
-.media-drop {
-  border: 2px dashed var(--border); border-radius: var(--radius-sm);
-  padding: 32px 16px; text-align: center; cursor: pointer;
-  transition: all var(--transition);
-}
-.media-drop:hover { border-color: var(--green); background: var(--green-dim); }
-.media-drop-icon { font-size: 32px; margin-bottom: 8px; }
-.media-drop p { font-size: 13px; color: var(--text2); margin-bottom: 4px; }
-.media-drop span { font-size: 11px; color: var(--text3); }
-.media-preview { display: flex; align-items: center; gap: 12px; background: var(--bg3); padding: 12px; border-radius: var(--radius-sm); }
-.media-preview img { width: 48px; height: 48px; object-fit: cover; border-radius: 6px; }
-.media-preview-info { flex: 1; min-width: 0; }
-.media-preview-name { font-size: 13px; font-weight: 600; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-.media-preview-size { font-size: 11px; color: var(--text3); }
-.media-preview-remove { background: var(--red-dim); color: var(--red); padding: 4px 8px; border-radius: 4px; font-size: 12px; }
-
-.form-actions { display: flex; gap: 10px; flex-wrap: wrap; justify-content: flex-end; margin-top: 24px; padding-top: 20px; border-top: 1px solid var(--border); }
-
-/* ===== SEARCH ===== */
-.search-bar { margin-bottom: 16px; }
-.search-input {
-  width: 100%; background: var(--card); border: 1px solid var(--border);
-  border-radius: var(--radius-sm); padding: 11px 16px; color: var(--text);
-  font-size: 14px; transition: border-color var(--transition);
-}
-.search-input:focus { border-color: var(--accent); }
-.group-search-wrap { margin-bottom: 6px; }
-.group-search-wrap .search-input { font-size: 13px; padding: 9px 13px; }
-
-/* ===== GROUPS LIST ===== */
-.groups-list { display: flex; flex-direction: column; gap: 10px; }
-.group-item {
-  background: var(--card);
-  border: 1px solid var(--border);
-  border-radius: var(--radius);
-  padding: 16px 20px;
-  display: flex; align-items: center; gap: 14px;
-  transition: all var(--transition);
-}
-.group-item:hover { border-color: var(--border); background: var(--card2); }
-.group-item.inactive { opacity: 0.5; }
-.group-avatar {
-  width: 44px; height: 44px; border-radius: 12px;
-  display: flex; align-items: center; justify-content: center;
-  font-size: 20px; flex-shrink: 0;
-  background: var(--green-dim); border: 1px solid rgba(0,230,118,0.2);
-}
-.group-info { flex: 1; min-width: 0; }
-.group-name { font-weight: 600; font-size: 14px; margin-bottom: 3px; }
-.group-meta { font-size: 12px; color: var(--text3); display: flex; gap: 10px; flex-wrap: wrap; }
-.group-tag { background: var(--blue-dim); color: var(--blue); padding: 1px 7px; border-radius: 20px; font-size: 10px; font-weight: 700; }
-.group-actions { display: flex; gap: 6px; }
-.icon-btn {
-  width: 32px; height: 32px; border-radius: 6px; display: flex; align-items: center; justify-content: center;
-  font-size: 14px; transition: all var(--transition);
-}
-.icon-btn.toggle { background: var(--green-dim); color: var(--green); }
-.icon-btn.toggle.off { background: var(--bg3); color: var(--text3); }
-.icon-btn.edit { background: var(--blue-dim); color: var(--blue); }
-.icon-btn.delete { background: var(--red-dim); color: var(--red); }
-.icon-btn:hover { filter: brightness(1.2); transform: scale(1.05); }
-.wa-linked { background: var(--green-dim); color: var(--green); padding: 2px 8px; border-radius: 20px; font-size: 10px; font-weight: 700; }
-.wa-unlinked { background: var(--bg3); color: var(--text3); padding: 2px 8px; border-radius: 20px; font-size: 10px; font-weight: 700; }
-
-/* ===== CONTACTS ===== */
-.contacts-stats { display: flex; gap: 12px; margin-bottom: 16px; flex-wrap: wrap; }
-.contacts-stat-pill { background: var(--card); border: 1px solid var(--border); border-radius: 20px; padding: 6px 14px; font-size: 12px; color: var(--text2); font-weight: 600; }
-.contacts-list { display: flex; flex-direction: column; gap: 8px; }
-.contact-item {
-  background: var(--card); border: 1px solid var(--border); border-radius: var(--radius-sm);
-  padding: 12px 16px; display: flex; align-items: center; gap: 12px;
-}
-.contact-avatar { width: 36px; height: 36px; border-radius: 50%; background: var(--purple-dim); display: flex; align-items: center; justify-content: center; font-size: 16px; flex-shrink: 0; }
-.contact-info { flex: 1; min-width: 0; }
-.contact-name { font-size: 13px; font-weight: 600; }
-.contact-phone { font-size: 12px; color: var(--text3); }
-.contact-state { font-size: 11px; background: var(--blue-dim); color: var(--blue); padding: 2px 8px; border-radius: 20px; font-weight: 700; }
-
-/* ===== TEMPLATES ===== */
-.templates-list { display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 14px; }
-.template-card {
-  background: var(--card); border: 1px solid var(--border); border-radius: var(--radius);
-  padding: 20px; cursor: pointer; transition: all var(--transition);
-}
-.template-card:hover { border-color: var(--green); transform: translateY(-2px); }
-.template-title { font-family: var(--font-head); font-size: 15px; font-weight: 700; margin-bottom: 8px; }
-.template-preview { font-size: 13px; color: var(--text2); line-height: 1.5; display: -webkit-box; -webkit-line-clamp: 3; -webkit-box-orient: vertical; overflow: hidden; margin-bottom: 12px; }
-.template-media { font-size: 11px; color: var(--orange); margin-bottom: 8px; }
-.template-actions { display: flex; gap: 6px; justify-content: flex-end; }
-
-/* ===== SCHEDULE ===== */
-.scheduled-list { display: flex; flex-direction: column; gap: 10px; }
-.schedule-item {
-  background: var(--card); border: 1px solid var(--border); border-radius: var(--radius);
-  padding: 16px 20px; display: flex; align-items: center; gap: 14px;
-}
-.schedule-time { text-align: center; min-width: 70px; }
-.schedule-time-value { font-family: var(--font-head); font-size: 22px; font-weight: 800; color: var(--orange); line-height: 1; }
-.schedule-time-date { font-size: 11px; color: var(--text3); margin-top: 4px; }
-.schedule-info { flex: 1; min-width: 0; }
-.schedule-msg { font-size: 13px; font-weight: 600; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; margin-bottom: 4px; }
-.schedule-meta { font-size: 12px; color: var(--text3); }
-.recurring-badge { background: var(--purple-dim); color: var(--purple); padding: 2px 8px; border-radius: 20px; font-size: 10px; font-weight: 700; }
-
-/* ===== HISTORY ===== */
-.history-stats { display: flex; gap: 12px; margin-bottom: 20px; flex-wrap: wrap; }
-.history-stat { background: var(--card); border: 1px solid var(--border); border-radius: var(--radius-sm); padding: 14px 20px; text-align: center; flex: 1; min-width: 100px; }
-.history-stat-num { font-family: var(--font-head); font-size: 24px; font-weight: 800; }
-.history-stat-label { font-size: 11px; color: var(--text2); margin-top: 2px; }
-.history-list { display: flex; flex-direction: column; gap: 10px; }
-.history-item {
-  background: var(--card); border: 1px solid var(--border); border-radius: var(--radius);
-  padding: 16px 20px;
-}
-.history-item-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 8px; }
-.history-item-msg { font-size: 13px; color: var(--text2); line-height: 1.5; }
-.history-item-footer { display: flex; gap: 12px; margin-top: 10px; flex-wrap: wrap; }
-.history-pill { font-size: 11px; font-weight: 700; padding: 3px 9px; border-radius: 20px; }
-.pill-sent { background: var(--green-dim); color: var(--green); }
-.pill-failed { background: var(--red-dim); color: var(--red); }
-.pill-time { background: var(--bg3); color: var(--text3); }
-
-/* ===== SETTINGS ===== */
-.settings-card { padding: 0; overflow: hidden; }
-.setting-item { display: flex; align-items: center; gap: 16px; padding: 20px 24px; border-bottom: 1px solid var(--border); flex-wrap: wrap; }
-.setting-item:last-child { border-bottom: none; }
-.setting-info { flex: 1; min-width: 180px; }
-.setting-info label { display: block; font-size: 14px; font-weight: 600; margin-bottom: 4px; }
-.setting-info p { font-size: 12px; color: var(--text3); }
-.setting-input {
-  background: var(--bg3); border: 1px solid var(--border); border-radius: 6px;
-  padding: 8px 12px; color: var(--text); font-size: 13px; width: 100px;
-}
-.setting-note { font-size: 12px; color: var(--text3); font-family: monospace; background: var(--bg3); padding: 6px 10px; border-radius: 5px; }
-
-/* ===== MODAL ===== */
-.modal-overlay {
-  position: fixed; inset: 0; background: rgba(0,0,0,0.7);
-  display: flex; align-items: center; justify-content: center;
-  z-index: 1000; padding: 16px;
-  backdrop-filter: blur(4px);
-  animation: fadeIn 0.2s ease;
-}
-@keyframes fadeIn { from { opacity:0; } to { opacity:1; } }
-.modal {
-  background: var(--card); border: 1px solid var(--border);
-  border-radius: var(--radius); width: 100%; max-width: 520px;
-  max-height: 90vh; overflow-y: auto;
-  box-shadow: var(--shadow);
-  animation: modalIn 0.25s cubic-bezier(0.4,0,0.2,1);
-}
-@keyframes modalIn { from { opacity:0; transform:scale(0.95) translateY(10px); } to { opacity:1; transform:scale(1) translateY(0); } }
-.modal-header { padding: 20px 24px; border-bottom: 1px solid var(--border); display: flex; align-items: center; justify-content: space-between; }
-.modal-header h3 { font-family: var(--font-head); font-size: 18px; font-weight: 800; }
-.modal-close { background: var(--bg3); color: var(--text2); width: 30px; height: 30px; border-radius: 50%; font-size: 16px; display: flex; align-items: center; justify-content: center; }
-.modal-close:hover { background: var(--red-dim); color: var(--red); }
-.modal-body { padding: 24px; }
-.modal-body .form-section:last-child { margin-bottom: 0; }
+/* MODAL */
+.modal-bg{position:fixed;inset:0;background:rgba(0,0,0,.75);backdrop-filter:blur(4px);z-index:1000;display:flex;align-items:center;justify-content:center;padding:16px;animation:fadeIn .2s ease;display:none}
+.modal-bg.open{display:flex}
+@keyframes fadeIn{from{opacity:0}to{opacity:1}}
+.modal{background:var(--card2);border:1px solid var(--border2);border-radius:20px;width:100%;max-width:500px;max-height:90vh;overflow-y:auto;box-shadow:var(--shadow);animation:mIn .25s cubic-bezier(.34,1.56,.64,1)}
+@keyframes mIn{from{opacity:0;transform:scale(.94) translateY(10px)}to{opacity:1;transform:scale(1) translateY(0)}}
+.modal-head{padding:20px 24px;border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between}
+.modal-head h3{font-size:17px;font-weight:700;letter-spacing:-.3px}
+.modal-close{width:30px;height:30px;border-radius:50%;background:var(--bg3);color:var(--text2);display:flex;align-items:center;justify-content:center;font-size:16px;transition:all .2s}
+.modal-close:hover{background:var(--red-dim);color:var(--red)}
+.modal-body{padding:22px 24px}
+.modal-body .fgroup:last-child{margin-bottom:0}
+.modal-foot{padding:16px 24px;border-top:1px solid var(--border);display:flex;gap:10px;justify-content:flex-end}
 
 /* QR MODAL */
-.qr-modal { max-width: 380px; }
-.qr-body { text-align: center; }
-.qr-body p { color: var(--text2); font-size: 13px; margin-bottom: 20px; }
-#qr-image { width: 240px; height: 240px; border-radius: 12px; background: white; padding: 8px; }
-.qr-note { font-size: 11px; color: var(--text3); margin-top: 12px; }
+.qr-modal{max-width:360px}
+.qr-wrap{text-align:center;padding:8px 0}
+.qr-wrap p{color:var(--text2);font-size:13px;margin-bottom:18px;line-height:1.5}
+.qr-wrap img{width:230px;height:230px;border-radius:12px;background:white;padding:8px}
+.qr-note{font-size:11px;color:var(--text3);margin-top:10px}
 
-/* CONFIRM MODAL */
-.confirm-modal { max-width: 380px; }
-.confirm-modal .modal-body { text-align: center; }
-.confirm-icon { font-size: 48px; margin-bottom: 16px; }
-.confirm-modal h3 { font-family: var(--font-head); font-size: 20px; font-weight: 800; margin-bottom: 8px; }
-.confirm-modal p { color: var(--text2); font-size: 14px; margin-bottom: 24px; line-height: 1.5; }
-.confirm-actions { display: flex; gap: 10px; justify-content: center; }
+/* CONFIRM */
+.confirm-modal{max-width:360px}
+.confirm-body{text-align:center;padding:8px 0}
+.confirm-ico{font-size:48px;margin-bottom:14px}
+.confirm-body h3{font-size:19px;font-weight:700;margin-bottom:8px}
+.confirm-body p{color:var(--text2);font-size:13px;line-height:1.5;margin-bottom:22px}
+.confirm-btns{display:flex;gap:10px;justify-content:center}
 
-/* ===== MODAL FORM INPUTS ===== */
-.modal-input {
-  width: 100%; background: var(--bg3); border: 1px solid var(--border);
-  border-radius: var(--radius-sm); padding: 12px 14px; color: var(--text);
-  font-size: 14px; transition: border-color var(--transition);
-  margin-bottom: 4px;
-}
-.modal-input:focus { border-color: var(--accent); }
-.modal-textarea {
-  width: 100%; background: var(--bg3); border: 1px solid var(--border);
-  border-radius: var(--radius-sm); padding: 12px 14px; color: var(--text);
-  font-size: 14px; resize: vertical; min-height: 100px;
-  transition: border-color var(--transition);
-}
-.modal-textarea:focus { border-color: var(--accent); }
-.modal-select {
-  width: 100%; background: var(--bg3); border: 1px solid var(--border);
-  border-radius: var(--radius-sm); padding: 12px 14px; color: var(--text);
-  font-size: 14px; appearance: none;
-}
-.modal-label { display: block; font-size: 11px; font-weight: 700; color: var(--text2); text-transform: uppercase; letter-spacing: 0.8px; margin-bottom: 8px; margin-top: 16px; }
-.modal-label:first-child { margin-top: 0; }
-.modal-actions { display: flex; gap: 10px; justify-content: flex-end; margin-top: 24px; }
-.modal-row { display: flex; gap: 12px; }
-.modal-row > div { flex: 1; }
+/* TOAST */
+.toast-wrap{position:fixed;bottom:20px;right:20px;z-index:9999;display:flex;flex-direction:column;gap:7px;pointer-events:none}
+.toast{background:var(--card2);border:1px solid var(--border2);border-radius:var(--radius-sm);padding:12px 16px;font-size:13px;font-weight:600;display:flex;align-items:center;gap:10px;box-shadow:var(--shadow);max-width:300px;animation:tIn .3s ease;pointer-events:all}
+@keyframes tIn{from{opacity:0;transform:translateX(40px)}to{opacity:1;transform:translateX(0)}}
+.toast.ok{border-color:var(--green)}
+.toast.err{border-color:var(--red)}
+.toast.info{border-color:var(--blue)}
 
-/* ===== TOAST ===== */
-.toast-container { position: fixed; bottom: 20px; right: 20px; z-index: 9999; display: flex; flex-direction: column; gap: 8px; }
-.toast {
-  background: var(--card2); border: 1px solid var(--border);
-  border-radius: var(--radius-sm); padding: 12px 18px;
-  font-size: 13px; font-weight: 600;
-  display: flex; align-items: center; gap: 10px;
-  box-shadow: var(--shadow);
-  animation: toastIn 0.3s ease;
-  max-width: 320px;
-}
-@keyframes toastIn { from { opacity:0; transform:translateX(40px); } to { opacity:1; transform:translateX(0); } }
-.toast.success { border-color: var(--green); }
-.toast.error { border-color: var(--red); }
-.toast.info { border-color: var(--blue); }
+/* MOBILE SIDEBAR */
+.sb-mob-overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,.6);z-index:99}
+.sidebar-full{display:none;position:fixed;left:0;top:0;bottom:0;width:240px;background:var(--card);border-right:1px solid var(--border);z-index:100;flex-direction:column;padding:16px;overflow-y:auto}
+.sidebar-full.open{display:flex}
+.sf-brand{display:flex;align-items:center;gap:12px;margin-bottom:24px;padding-bottom:16px;border-bottom:1px solid var(--border)}
+.sf-brand .icon{font-size:28px}
+.sf-brand h2{font-size:17px;font-weight:700}
+.sf-brand span{color:var(--green);font-size:10px;font-weight:700;letter-spacing:2px;display:block;text-transform:uppercase}
+.sf-nav{display:flex;flex-direction:column;gap:3px;flex:1}
+.sf-item{display:flex;align-items:center;gap:10px;padding:11px 12px;border-radius:var(--radius-sm);background:none;color:var(--text2);font-size:14px;font-weight:500;transition:all .2s;width:100%}
+.sf-item:hover{background:var(--bg3);color:var(--text)}
+.sf-item.active{background:var(--green-dim);color:var(--green)}
+.sf-item svg{width:18px;height:18px;flex-shrink:0}
 
-/* ===== MISC ===== */
-.empty-state { text-align: center; padding: 48px; color: var(--text3); font-size: 14px; }
-.loading { text-align: center; padding: 32px; color: var(--text3); font-size: 14px; }
-.divider { height: 1px; background: var(--border); margin: 16px 0; }
-.badge-wa { display: inline-flex; align-items: center; gap: 4px; background: var(--green-dim); color: var(--green); padding: 3px 8px; border-radius: 20px; font-size: 10px; font-weight: 700; }
+/* HIDDEN */
+.hidden{display:none!important}
 
-/* ===== RESPONSIVE ===== */
-@media (max-width: 768px) {
-  .sidebar {
-    position: fixed; left: 0; top: 0; bottom: 0;
-    transform: translateX(-100%); z-index: 100;
-  }
-  .sidebar.open { transform: translateX(0); }
-  .sidebar-close { display: flex; }
-  .sidebar-overlay.open { display: block; }
-  .menu-btn { display: flex; }
-  .stats-grid { grid-template-columns: repeat(2, 1fr); }
-  .quick-actions { grid-template-columns: repeat(2, 1fr); }
-  .templates-list { grid-template-columns: 1fr; }
-  .page { padding: 16px; }
-  .topbar { padding: 0 14px; }
-  .modal { max-width: 100%; margin: 0; }
-  .modal-overlay { align-items: flex-end; padding: 0; }
-  .modal { border-radius: var(--radius) var(--radius) 0 0; max-height: 85vh; }
-  .form-actions { flex-direction: column-reverse; }
-  .form-actions button { width: 100%; justify-content: center; }
-}
+/* EMPTY & LOADING */
+.empty{text-align:center;padding:60px 20px;color:var(--text3)}
+.empty-icon{font-size:40px;margin-bottom:12px}
+.empty p{font-size:14px}
+.loading-text{color:var(--text3);font-size:13px;padding:24px;text-align:center}
 
-@media (max-width: 400px) {
-  .stats-grid { grid-template-columns: 1fr; }
-  .quick-actions { grid-template-columns: repeat(2, 1fr); }
-  .page-header h1 { font-size: 22px; }
-}
+/* BROADCAST/CONTACTS SEND */
+.bc-info-box{background:var(--blue-dim);border:1px solid rgba(56,189,248,.2);border-radius:var(--radius-sm);padding:14px;margin-bottom:18px;font-size:13px;color:var(--text2);line-height:1.6}
+.bc-info-box strong{color:var(--blue)}
+
+/* RESPONSIVE */
+@media(max-width:1100px){.send-layout{grid-template-columns:1fr}.side-card{display:none}.stats{grid-template-columns:repeat(2,1fr)}.qa-grid{grid-template-columns:repeat(2,1fr)}}
+@media(max-width:768px){.sidebar{display:none}.topbar-menu{display:flex}.page{padding:16px}.stats{grid-template-columns:1fr 1fr}.ph{flex-direction:column}.ph-right{width:100%}.ph-right .btn{flex:1;justify-content:center}.tpl-grid{grid-template-columns:1fr}}
+@media(max-width:420px){.stats{grid-template-columns:1fr}.qa-grid{grid-template-columns:1fr 1fr}}
 </style>
 </head>
 <body>
 
-<!-- LOGIN SCREEN -->
+<!-- LOGIN -->
 <div id="login-screen" class="screen active">
   <div class="login-bg">
-    <div class="login-orb orb1"></div>
-    <div class="login-orb orb2"></div>
-    <div class="login-orb orb3"></div>
+    <div class="lg-orb"></div><div class="lg-orb"></div><div class="lg-orb"></div>
   </div>
-  <div class="login-box">
-    <div class="login-logo">
-      <div class="logo-icon">📡</div>
-      <h1>WA Broadcast<span>Pro</span></h1>
-      <p>Professional WhatsApp Broadcast Tool</p>
-    </div>
-    <div class="login-form">
-      <div class="input-group">
-        <label>Admin Password</label>
-        <input type="password" id="login-password" placeholder="Enter password" autocomplete="current-password" />
+  <div class="login-wrap">
+    <div class="login-card">
+      <div class="login-brand">
+        <span class="icon">📡</span>
+        <h1>WA Broadcast <em>Pro</em></h1>
+        <p>Professional WhatsApp Broadcast Tool</p>
       </div>
-      <button class="btn-primary btn-full" onclick="login()">
-        <span>Access Dashboard</span>
-        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
+      <div class="field">
+        <label>Admin Password</label>
+        <input type="password" id="pwd" placeholder="Enter your password" autocomplete="current-password"/>
+      </div>
+      <button class="btn-login" onclick="doLogin()">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" width="18" height="18"><path d="M15 3h4a2 2 0 012 2v14a2 2 0 01-2 2h-4M10 17l5-5-5-5M15 12H3"/></svg>
+        Access Dashboard
       </button>
-      <p id="login-error" class="error-msg hidden">Invalid password. Try again.</p>
+      <div class="login-err" id="login-err">Wrong password. Try again.</div>
     </div>
   </div>
 </div>
 
-<!-- MAIN APP -->
+<!-- APP -->
 <div id="app-screen" class="screen">
 
-  <!-- SIDEBAR -->
+  <!-- ICON SIDEBAR (desktop) -->
   <nav class="sidebar" id="sidebar">
-    <div class="sidebar-header">
-      <div class="brand">
-        <span class="brand-icon">📡</span>
-        <div>
-          <h2>WA Broadcast</h2>
-          <span>Pro</span>
-        </div>
-      </div>
-      <button class="sidebar-close" onclick="toggleSidebar()">✕</button>
-    </div>
-
-    <!-- WA Status -->
-    <div class="wa-status-card" id="wa-status-card">
-      <div class="wa-status-dot" id="wa-dot"></div>
-      <div class="wa-status-info">
-        <span class="wa-status-label" id="wa-status-label">Connecting...</span>
-        <span class="wa-status-sub" id="wa-status-sub">WhatsApp</span>
-      </div>
-      <button class="wa-qr-btn hidden" id="wa-qr-btn" onclick="showQR()">QR</button>
-    </div>
-
-    <div class="nav-section">
-      <span class="nav-label">MAIN</span>
-      <button class="nav-item active" onclick="showPage('dashboard')">
-        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/></svg>
-        Dashboard
+    <div class="sb-logo" onclick="showMobSidebar()" title="WA Broadcast Pro">📡</div>
+    <div class="sb-nav">
+      <button class="sb-item active" onclick="nav('dashboard')" title="Dashboard">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/></svg>
+        <span>Home</span>
       </button>
-      <button class="nav-item" onclick="showPage('send')">
-        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="22" y1="2" x2="11" y2="13"/><polygon points="22 2 15 22 11 13 2 9 22 2"/></svg>
-        Send Message
+      <button class="sb-item" onclick="nav('send')" title="Send Message">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="22" y1="2" x2="11" y2="13"/><polygon points="22 2 15 22 11 13 2 9 22 2"/></svg>
+        <span>Send</span>
       </button>
-      <button class="nav-item" onclick="showPage('schedule')">
-        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
-        Schedule
+      <button class="sb-item" onclick="nav('broadcast')" title="Broadcast to Contacts">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 16.92v3a2 2 0 01-2.18 2 19.79 19.79 0 01-8.63-3.07A19.5 19.5 0 013.07 9.81 19.79 19.79 0 01.22 1.18 2 2 0 012.18 0h3a2 2 0 012 1.72 12.84 12.84 0 00.7 2.81 2 2 0 01-.45 2.11L6.91 7.91a16 16 0 006.08 6.08l1.27-.58a2 2 0 012.11-.45 12.84 12.84 0 002.81.7A2 2 0 0122 15.92z"/></svg>
+        <span>Blast</span>
       </button>
-    </div>
-
-    <div class="nav-section">
-      <span class="nav-label">MANAGE</span>
-      <button class="nav-item" onclick="showPage('groups')">
-        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
-        Groups
-        <span class="nav-badge" id="groups-badge">0</span>
+      <button class="sb-item" onclick="nav('schedule')" title="Schedule">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+        <span>Schedule</span>
       </button>
-      <button class="nav-item" onclick="showPage('contacts')">
-        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
-        Contacts
-        <span class="nav-badge" id="contacts-badge">0</span>
+      <button class="sb-item" onclick="nav('groups')" title="Groups" id="sb-groups">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17 21v-2a4 4 0 00-4-4H5a4 4 0 00-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 00-3-3.87M16 3.13a4 4 0 010 7.75"/></svg>
+        <span>Groups</span>
       </button>
-      <button class="nav-item" onclick="showPage('templates')">
-        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/><polyline points="10 9 9 9 8 9"/></svg>
-        Templates
+      <button class="sb-item" onclick="nav('contacts')" title="Contacts">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 21v-2a4 4 0 00-4-4H8a4 4 0 00-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+        <span>Contacts</span>
+      </button>
+      <button class="sb-item" onclick="nav('templates')" title="Templates">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/></svg>
+        <span>Templates</span>
+      </button>
+      <button class="sb-item" onclick="nav('history')" title="History">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg>
+        <span>Reports</span>
       </button>
     </div>
-
-    <div class="nav-section">
-      <span class="nav-label">REPORTS</span>
-      <button class="nav-item" onclick="showPage('history')">
-        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg>
-        History & Reports
-      </button>
-      <button class="nav-item" onclick="showPage('settings')">
-        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="3"/><path d="M19.07 4.93l-1.41 1.41M19.07 19.07l-1.41-1.41M4.93 4.93l1.41 1.41M4.93 19.07l1.41-1.41M12 2v2M12 20v2M2 12h2M20 12h2"/></svg>
-        Settings
-      </button>
+    <div style="width:44px;height:44px;border-radius:50%;background:var(--green-dim);display:flex;align-items:center;justify-content:center;cursor:pointer;position:relative;margin-bottom:4px" onclick="showQR()" title="WhatsApp Status">
+      <span style="font-size:20px">💬</span>
+      <div class="sb-wa-dot" id="sb-dot"></div>
     </div>
-
-    <div class="sidebar-footer">
-      <button class="btn-logout" onclick="logoutApp()">
-        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg>
-        Logout
+    <div class="sb-footer">
+      <button class="sb-logout" onclick="doLogout()" title="Logout">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 21H5a2 2 0 01-2-2V5a2 2 0 012-2h4M16 17l5-5-5-5M21 12H9"/></svg>
+        <span>Exit</span>
       </button>
     </div>
   </nav>
 
-  <!-- OVERLAY for mobile -->
-  <div class="sidebar-overlay" id="sidebar-overlay" onclick="toggleSidebar()"></div>
+  <!-- MOBILE OVERLAY SIDEBAR -->
+  <div class="sb-mob-overlay" id="mob-overlay" onclick="hideMobSidebar()"></div>
+  <nav class="sidebar-full" id="mob-sidebar">
+    <div class="sf-brand">
+      <span class="icon">📡</span>
+      <div><h2>WA Broadcast</h2><span>Pro</span></div>
+      <button onclick="hideMobSidebar()" style="margin-left:auto;background:none;color:var(--text2);font-size:20px">✕</button>
+    </div>
+    <div class="wa-pill" id="mob-wa-pill" style="margin-bottom:16px" onclick="showQR()">
+      <div class="wa-pill-dot" id="mob-dot"></div>
+      <span id="mob-wa-label">Connecting...</span>
+    </div>
+    <div class="sf-nav">
+      <button class="sf-item active" onclick="nav('dashboard');hideMobSidebar()"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="18" height="18"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/></svg>Dashboard</button>
+      <button class="sf-item" onclick="nav('send');hideMobSidebar()"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="18" height="18"><line x1="22" y1="2" x2="11" y2="13"/><polygon points="22 2 15 22 11 13 2 9 22 2"/></svg>Send to Groups</button>
+      <button class="sf-item" onclick="nav('broadcast');hideMobSidebar()"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="18" height="18"><path d="M22 16.92v3a2 2 0 01-2.18 2 19.79 19.79 0 01-8.63-3.07A19.5 19.5 0 013.07 9.81 19.79 19.79 0 01.22 1.18 2 2 0 012.18 0h3a2 2 0 012 1.72 12.84 12.84 0 00.7 2.81 2 2 0 01-.45 2.11L6.91 7.91a16 16 0 006.08 6.08l1.27-.58a2 2 0 012.11-.45 12.84 12.84 0 002.81.7A2 2 0 0122 15.92z"/></svg>Broadcast to Contacts</button>
+      <button class="sf-item" onclick="nav('schedule');hideMobSidebar()"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="18" height="18"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>Schedule</button>
+      <button class="sf-item" onclick="nav('groups');hideMobSidebar()"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="18" height="18"><path d="M17 21v-2a4 4 0 00-4-4H5a4 4 0 00-4 4v2"/><circle cx="9" cy="7" r="4"/></svg>Groups</button>
+      <button class="sf-item" onclick="nav('contacts');hideMobSidebar()"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="18" height="18"><path d="M20 21v-2a4 4 0 00-4-4H8a4 4 0 00-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>Contacts</button>
+      <button class="sf-item" onclick="nav('templates');hideMobSidebar()"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="18" height="18"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/></svg>Templates</button>
+      <button class="sf-item" onclick="nav('history');hideMobSidebar()"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="18" height="18"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg>History & Reports</button>
+      <button class="sf-item" onclick="nav('settings');hideMobSidebar()"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="18" height="18"><circle cx="12" cy="12" r="3"/><path d="M19.07 4.93l-1.41 1.41M19.07 19.07l-1.41-1.41M4.93 4.93l1.41 1.41M4.93 19.07l1.41-1.41M12 2v2M12 20v2M2 12h2M20 12h2"/></svg>Settings</button>
+    </div>
+    <button class="btn btn-danger btn-sm" style="margin-top:auto;width:100%;justify-content:center" onclick="doLogout()">Logout</button>
+  </nav>
 
-  <!-- MAIN CONTENT -->
-  <main class="main-content">
-
-    <!-- TOP BAR -->
+  <!-- MAIN -->
+  <div class="main">
+    <!-- TOPBAR -->
     <header class="topbar">
-      <button class="menu-btn" onclick="toggleSidebar()">
-        <span></span><span></span><span></span>
+      <button class="topbar-menu" onclick="showMobSidebar()">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="18" x2="21" y2="18"/></svg>
       </button>
-      <div class="topbar-title" id="page-title">Dashboard</div>
+      <div class="topbar-title">
+        <h2 id="tb-title">Dashboard</h2>
+        <p id="tb-sub">Overview</p>
+      </div>
       <div class="topbar-right">
-        <div class="wa-mini-status" id="wa-mini">
-          <div class="dot disconnected" id="mini-dot"></div>
+        <div class="wa-pill" onclick="showQR()" id="wa-pill">
+          <div class="wa-pill-dot" id="wa-dot"></div>
+          <span id="wa-label">Connecting...</span>
         </div>
       </div>
     </header>
 
-    <!-- PAGES -->
+    <div class="content">
 
-    <!-- DASHBOARD -->
-    <div class="page active" id="page-dashboard">
-      <div class="page-header">
-        <h1>Dashboard</h1>
-        <p>Overview of your broadcast activity</p>
+      <!-- DASHBOARD -->
+      <div class="page active" id="pg-dashboard">
+        <div class="stats" id="stats-grid">
+          <div class="stat g"><div class="stat-num" id="s-groups">0</div><div class="stat-label">Active Groups</div><div class="stat-icon">🏛️</div></div>
+          <div class="stat b"><div class="stat-num" id="s-contacts">0</div><div class="stat-label">Total Contacts</div><div class="stat-icon">👥</div></div>
+          <div class="stat a"><div class="stat-num" id="s-sent">0</div><div class="stat-label">Messages Sent</div><div class="stat-icon">📨</div></div>
+          <div class="stat p"><div class="stat-num" id="s-sched">0</div><div class="stat-label">Scheduled</div><div class="stat-icon">⏰</div></div>
+        </div>
+        <div class="qa-grid">
+          <div class="qa" onclick="nav('send')"><div class="qa-icon">🚀</div><span>Send to Groups</span></div>
+          <div class="qa" onclick="nav('broadcast')"><div class="qa-icon">📲</div><span>Broadcast Contacts</span></div>
+          <div class="qa" onclick="syncGroups()"><div class="qa-icon">🔄</div><span>Sync Groups</span></div>
+          <div class="qa" onclick="nav('history')"><div class="qa-icon">📊</div><span>View Reports</span></div>
+        </div>
+        <div style="font-size:12px;font-weight:700;color:var(--text3);text-transform:uppercase;letter-spacing:1px;margin-bottom:12px">Recent Activity</div>
+        <div id="recent-list"><div class="loading-text">Loading...</div></div>
       </div>
 
-      <div class="stats-grid">
-        <div class="stat-card green">
-          <div class="stat-icon">👥</div>
-          <div class="stat-info">
-            <span class="stat-num" id="stat-groups">0</span>
-            <span class="stat-label">Active Groups</span>
-          </div>
+      <!-- SEND TO GROUPS -->
+      <div class="page" id="pg-send">
+        <div class="ph">
+          <div class="ph-left"><h1>Send to Groups</h1><p>Broadcast to your WhatsApp groups</p></div>
         </div>
-        <div class="stat-card blue">
-          <div class="stat-icon">📱</div>
-          <div class="stat-info">
-            <span class="stat-num" id="stat-contacts">0</span>
-            <span class="stat-label">Total Contacts</span>
-          </div>
+        <div id="send-prog" class="progress-card">
+          <div class="prog-header"><span class="prog-title" style="color:var(--blue)">📤 Sending...</span><span class="prog-count" id="prog-count">0/0</span></div>
+          <div class="prog-bar-wrap"><div class="prog-bar" id="prog-bar"></div></div>
+          <div class="prog-log" id="prog-log"></div>
         </div>
-        <div class="stat-card purple">
-          <div class="stat-icon">📨</div>
-          <div class="stat-info">
-            <span class="stat-num" id="stat-sent">0</span>
-            <span class="stat-label">Messages Sent</span>
-          </div>
-        </div>
-        <div class="stat-card orange">
-          <div class="stat-icon">⏰</div>
-          <div class="stat-info">
-            <span class="stat-num" id="stat-scheduled">0</span>
-            <span class="stat-label">Scheduled</span>
-          </div>
-        </div>
-      </div>
-
-      <!-- Quick Actions -->
-      <div class="section-title">Quick Actions</div>
-      <div class="quick-actions">
-        <button class="qa-btn" onclick="showPage('send')">
-          <div class="qa-icon">🚀</div>
-          <span>Send Now</span>
-        </button>
-        <button class="qa-btn" onclick="showPage('schedule')">
-          <div class="qa-icon">⏰</div>
-          <span>Schedule</span>
-        </button>
-        <button class="qa-btn" onclick="syncGroups()">
-          <div class="qa-icon">🔄</div>
-          <span>Sync Groups</span>
-        </button>
-        <button class="qa-btn" onclick="showPage('history')">
-          <div class="qa-icon">📊</div>
-          <span>Reports</span>
-        </button>
-      </div>
-
-      <!-- Recent Activity -->
-      <div class="section-title">Recent Activity</div>
-      <div class="recent-list" id="recent-history">
-        <div class="empty-state">No messages sent yet</div>
-      </div>
-    </div>
-
-    <!-- SEND MESSAGE -->
-    <div class="page" id="page-send">
-      <div class="page-header">
-        <h1>Send Message</h1>
-        <p>Broadcast to all or selected groups</p>
-      </div>
-
-      <!-- Send Progress -->
-      <div class="send-progress-card hidden" id="send-progress-card">
-        <div class="progress-header">
-          <span class="progress-title">📤 Sending...</span>
-          <span class="progress-count" id="progress-count">0 / 0</span>
-        </div>
-        <div class="progress-bar-wrap">
-          <div class="progress-bar" id="progress-bar" style="width:0%"></div>
-        </div>
-        <div class="progress-log" id="progress-log"></div>
-      </div>
-
-      <div class="card">
-        <!-- Target Groups -->
-        <div class="form-section">
-          <label class="form-label">Target Groups</label>
-          <div class="target-tabs">
-            <button class="target-tab active" id="tab-all" onclick="setTarget('all')">All Active Groups</button>
-            <button class="target-tab" id="tab-select" onclick="setTarget('select')">Select Groups</button>
-          </div>
-          <div class="group-selector hidden" id="group-selector">
-            <div class="group-search-wrap">
-              <input type="text" class="search-input" placeholder="Search groups..." oninput="filterSendGroups(this.value)" />
+        <div class="send-layout">
+          <div>
+            <div class="card">
+              <div class="fgroup">
+                <div class="flabel">Target</div>
+                <div class="target-grid">
+                  <button class="target-btn active" id="tgt-all" onclick="setTarget('all')">All Active Groups</button>
+                  <button class="target-btn" id="tgt-sel" onclick="setTarget('select')">Select Groups</button>
+                </div>
+                <div id="group-selector" class="hidden">
+                  <input class="search-input" style="margin-bottom:8px" placeholder="Search groups..." oninput="filterSendGroups(this.value)"/>
+                  <div class="group-select-list" id="send-gl"></div>
+                </div>
+                <div style="font-size:12px;color:var(--text3);margin-top:8px" id="target-info">All active groups will receive this message</div>
+              </div>
+              <div class="fgroup">
+                <div class="flabel">Template <span style="color:var(--text3);text-transform:none;font-weight:400">(optional)</span></div>
+                <select class="fselect" id="tpl-picker" onchange="applyTpl(this.value)"><option value="">— pick a template —</option></select>
+              </div>
+              <div class="fgroup">
+                <div class="flabel">Message</div>
+                <textarea class="ftextarea" id="send-msg" placeholder="Type your message..." oninput="updateCharCount(this,'cc1')"></textarea>
+                <div class="char-count" id="cc1">0 characters</div>
+              </div>
+              <div class="fgroup" style="margin-bottom:0">
+                <div class="flabel">Attachment <span style="color:var(--text3);text-transform:none;font-weight:400">(optional)</span></div>
+                <div class="media-drop" id="drop1" onclick="document.getElementById('mi1').click()">
+                  <input type="file" id="mi1" hidden accept="image/*,video/*,audio/*,.pdf,.doc,.docx,.xls,.xlsx" onchange="handleMedia(this,'drop1','mp1')"/>
+                  <div class="media-drop-icon">📎</div><p>Click to attach file</p><span>Images, videos, documents — max 64MB</span>
+                </div>
+                <div class="media-prev hidden" id="mp1"></div>
+              </div>
             </div>
-            <div class="group-list" id="send-group-list"></div>
+            <div style="display:flex;gap:10px;justify-content:flex-end;margin-top:14px;flex-wrap:wrap">
+              <button class="btn btn-outline" onclick="showScheduleModal()"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>Schedule</button>
+              <button class="btn btn-primary" onclick="confirmSend()"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="22" y1="2" x2="11" y2="13"/><polygon points="22 2 15 22 11 13 2 9 22 2"/></svg>Send Now</button>
+            </div>
           </div>
-          <div class="selected-info" id="selected-info">All active groups will receive this message</div>
-        </div>
-
-        <!-- Template Picker -->
-        <div class="form-section">
-          <label class="form-label">Use Template <span class="optional">(optional)</span></label>
-          <select class="form-select" id="template-picker" onchange="applyTemplate(this.value)">
-            <option value="">— Select a template —</option>
-          </select>
-        </div>
-
-        <!-- Message -->
-        <div class="form-section">
-          <label class="form-label">Message</label>
-          <textarea class="form-textarea" id="send-message" placeholder="Type your message here..." rows="5"></textarea>
-          <div class="char-count" id="char-count">0 characters</div>
-        </div>
-
-        <!-- Media Upload -->
-        <div class="form-section">
-          <label class="form-label">Attach Media <span class="optional">(optional)</span></label>
-          <div class="media-drop" id="media-drop" onclick="document.getElementById('media-input').click()">
-            <input type="file" id="media-input" hidden accept="image/*,video/*,audio/*,.pdf,.doc,.docx,.xls,.xlsx,.ppt,.pptx" onchange="handleMediaSelect(this)" />
-            <div class="media-drop-content" id="media-drop-content">
-              <div class="media-drop-icon">📎</div>
-              <p>Click to attach image, video, audio or document</p>
-              <span>Max 64MB</span>
+          <div>
+            <div class="side-card">
+              <div class="side-title">Quick Templates</div>
+              <div id="quick-tpls" style="display:flex;flex-direction:column;gap:6px"><div class="loading-text" style="padding:8px">Loading...</div></div>
             </div>
           </div>
         </div>
+      </div>
 
-        <!-- Actions -->
-        <div class="form-actions">
-          <button class="btn-secondary" onclick="showSendTestConfirm()">
-            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14.5 10c-.83 0-1.5-.67-1.5-1.5v-5c0-.83.67-1.5 1.5-1.5s1.5.67 1.5 1.5v5c0 .83-.67 1.5-1.5 1.5z"/><path d="M20.5 10H19V8.5c0-.83.67-1.5 1.5-1.5s1.5.67 1.5 1.5-.67 1.5-1.5 1.5z"/><path d="M9.5 14c.83 0 1.5.67 1.5 1.5v5c0 .83-.67 1.5-1.5 1.5S8 21.33 8 20.5v-5c0-.83.67-1.5 1.5-1.5z"/><path d="M3.5 14H5v1.5c0 .83-.67 1.5-1.5 1.5S2 16.33 2 15.5 2.67 14 3.5 14z"/><path d="M14 14.5c0-.83.67-1.5 1.5-1.5h5c.83 0 1.5.67 1.5 1.5s-.67 1.5-1.5 1.5h-5c-.83 0-1.5-.67-1.5-1.5z"/><path d="M15.5 19H14v1.5c0 .83.67 1.5 1.5 1.5s1.5-.67 1.5-1.5-.67-1.5-1.5-1.5z"/><path d="M10 9.5C10 8.67 9.33 8 8.5 8h-5C2.67 8 2 8.67 2 9.5S2.67 11 3.5 11h5c.83 0 1.5-.67 1.5-1.5z"/><path d="M8.5 5H10V3.5C10 2.67 9.33 2 8.5 2S7 2.67 7 3.5 7.67 5 8.5 5z"/></svg>
-            Test Send
-          </button>
-          <button class="btn-secondary" onclick="showScheduleModal()">
-            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
-            Schedule
-          </button>
-          <button class="btn-primary" onclick="confirmSend()">
-            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="22" y1="2" x2="11" y2="13"/><polygon points="22 2 15 22 11 13 2 9 22 2"/></svg>
-            Send Now
-          </button>
+      <!-- BROADCAST TO CONTACTS (NEW) -->
+      <div class="page" id="pg-broadcast">
+        <div class="ph">
+          <div class="ph-left"><h1>Broadcast to Contacts</h1><p>Upload CSV and send directly to individual contacts</p></div>
+        </div>
+        <div id="bc-prog" class="progress-card">
+          <div class="prog-header"><span class="prog-title" style="color:var(--green)">📲 Broadcasting...</span><span class="prog-count" id="bc-count">0/0</span></div>
+          <div class="prog-bar-wrap"><div class="prog-bar" id="bc-bar" style="background:linear-gradient(90deg,var(--green),var(--blue))"></div></div>
+          <div class="prog-log" id="bc-log"></div>
+        </div>
+        <div class="send-layout">
+          <div>
+            <div class="bc-info-box">
+              <strong>How this works:</strong> Upload a CSV file with Name &amp; Phone columns → type your message → click Broadcast. Messages are sent to each person individually (not group messages).
+            </div>
+            <div class="card">
+              <div class="fgroup">
+                <div class="flabel">Upload Contact CSV</div>
+                <div class="media-drop" onclick="document.getElementById('bc-csv').click()" id="bc-drop">
+                  <input type="file" id="bc-csv" hidden accept=".csv" onchange="handleCSVUpload(this)"/>
+                  <div class="media-drop-icon">📋</div>
+                  <p>Click to upload CSV file</p>
+                  <span>Format: Name, Phone (with country code)</span>
+                </div>
+                <div id="bc-csv-info" style="margin-top:8px;font-size:12px;color:var(--text3)"></div>
+              </div>
+              <div class="fgroup">
+                <div class="flabel">Message</div>
+                <textarea class="ftextarea" id="bc-msg" placeholder="Type your message..." oninput="updateCharCount(this,'cc2')"></textarea>
+                <div class="char-count" id="cc2">0 characters</div>
+              </div>
+              <div class="fgroup" style="margin-bottom:0">
+                <div class="flabel">Attachment <span style="color:var(--text3);text-transform:none;font-weight:400">(optional)</span></div>
+                <div class="media-drop" id="drop2" onclick="document.getElementById('mi2').click()">
+                  <input type="file" id="mi2" hidden accept="image/*,video/*,audio/*,.pdf,.doc,.docx" onchange="handleMedia(this,'drop2','mp2')"/>
+                  <div class="media-drop-icon">📎</div><p>Click to attach file</p><span>Max 64MB</span>
+                </div>
+                <div class="media-prev hidden" id="mp2"></div>
+              </div>
+            </div>
+            <div style="display:flex;gap:10px;justify-content:flex-end;margin-top:14px">
+              <button class="btn btn-primary" onclick="startBroadcast()"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 16.92v3a2 2 0 01-2.18 2 19.79 19.79 0 01-8.63-3.07A19.5 19.5 0 013.07 9.81"/><path d="M1 1l22 22"/></svg>Start Broadcast</button>
+            </div>
+          </div>
+          <div>
+            <div class="side-card">
+              <div class="side-title">CSV Format</div>
+              <div style="background:var(--bg3);border-radius:var(--radius-sm);padding:12px;font-family:var(--mono);font-size:12px;color:var(--text2);line-height:1.8">
+                Name,Phone<br/>
+                Ramesh Sharma,919876543210<br/>
+                Suresh Patel,919812345678<br/>
+                <span style="color:var(--text3)">...</span>
+              </div>
+              <div style="font-size:12px;color:var(--text3);margin-top:10px;line-height:1.6">Phone must include country code (91 for India). No + symbol needed.</div>
+            </div>
+          </div>
         </div>
       </div>
-    </div>
 
-    <!-- GROUPS -->
-    <div class="page" id="page-groups">
-      <div class="page-header">
-        <h1>Groups</h1>
-        <p>Manage your state-wise WhatsApp groups</p>
+      <!-- GROUPS -->
+      <div class="page" id="pg-groups">
+        <div class="ph">
+          <div class="ph-left"><h1>Groups</h1><p>Manage your state-wise WhatsApp groups</p></div>
+          <div class="ph-right">
+            <button class="btn btn-outline btn-sm" onclick="showCreateGroupsModal()">📤 Create from CSV</button>
+            <button class="btn btn-outline btn-sm" onclick="syncGroups()">🔄 Sync from WA</button>
+            <button class="btn btn-primary btn-sm" onclick="showAddGroupModal()">+ Add Group</button>
+          </div>
+        </div>
+        <div id="gc-prog" class="progress-card">
+          <div class="prog-header"><span class="prog-title" style="color:var(--purple)">👥 Creating Groups...</span><span class="prog-count" id="gc-count">0/0</span></div>
+          <div class="prog-bar-wrap"><div class="prog-bar" id="gc-bar" style="background:linear-gradient(90deg,var(--purple),var(--blue))"></div></div>
+          <div class="prog-log" id="gc-log"></div>
+        </div>
+        <div class="search-wrap">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+          <input class="search-input" placeholder="Search groups by name or state..." oninput="filterGroups(this.value)"/>
+        </div>
+        <div class="group-list" id="groups-list"><div class="loading-text">Loading groups...</div></div>
       </div>
-      <div class="page-actions">
-        <button class="btn-primary" onclick="showAddGroupModal()">+ Add Group</button>
-        <button class="btn-secondary" onclick="syncGroups()">🔄 Sync from WA</button>
-        <button class="btn-secondary" onclick="showCreateGroupsModal()">📤 Create from CSV</button>
-      </div>
-      <div class="search-bar">
-        <input type="text" class="search-input" placeholder="Search groups..." oninput="filterGroups(this.value)" />
-      </div>
-      <div class="groups-list" id="groups-list">
-        <div class="loading">Loading groups...</div>
-      </div>
-    </div>
 
-    <!-- CONTACTS -->
-    <div class="page" id="page-contacts">
-      <div class="page-header">
-        <h1>Contacts</h1>
-        <p>Manage your 4000+ contacts</p>
+      <!-- CONTACTS -->
+      <div class="page" id="pg-contacts">
+        <div class="ph">
+          <div class="ph-left"><h1>Contacts</h1><p id="ct-count-label">Loading...</p></div>
+          <div class="ph-right">
+            <button class="btn btn-outline btn-sm" onclick="showImportModal()">📤 Import CSV</button>
+            <button class="btn btn-primary btn-sm" onclick="showAddContactModal()">+ Add Contact</button>
+          </div>
+        </div>
+        <div class="search-wrap">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+          <input class="search-input" placeholder="Search contacts..." oninput="filterContacts(this.value)"/>
+        </div>
+        <div class="contacts-list" id="contacts-list"><div class="loading-text">Loading contacts...</div></div>
       </div>
-      <div class="page-actions">
-        <button class="btn-primary" onclick="showImportModal()">📤 Import CSV</button>
-        <button class="btn-secondary" onclick="showAddContactModal()">+ Add Contact</button>
-      </div>
-      <div class="contacts-stats" id="contacts-stats"></div>
-      <div class="contacts-list" id="contacts-list">
-        <div class="loading">Loading contacts...</div>
-      </div>
-    </div>
 
-    <!-- TEMPLATES -->
-    <div class="page" id="page-templates">
-      <div class="page-header">
-        <h1>Templates</h1>
-        <p>Save and reuse message templates</p>
+      <!-- TEMPLATES -->
+      <div class="page" id="pg-templates">
+        <div class="ph">
+          <div class="ph-left"><h1>Templates</h1><p>Save and reuse your messages</p></div>
+          <div class="ph-right"><button class="btn btn-primary btn-sm" onclick="showAddTplModal()">+ New Template</button></div>
+        </div>
+        <div class="tpl-grid" id="tpl-list"><div class="loading-text">Loading templates...</div></div>
       </div>
-      <div class="page-actions">
-        <button class="btn-primary" onclick="showAddTemplateModal()">+ New Template</button>
-      </div>
-      <div class="templates-list" id="templates-list">
-        <div class="loading">Loading templates...</div>
-      </div>
-    </div>
 
-    <!-- SCHEDULE -->
-    <div class="page" id="page-schedule">
-      <div class="page-header">
-        <h1>Scheduled Messages</h1>
-        <p>Upcoming broadcasts</p>
+      <!-- SCHEDULE -->
+      <div class="page" id="pg-schedule">
+        <div class="ph"><div class="ph-left"><h1>Scheduled Messages</h1><p>Upcoming broadcasts</p></div></div>
+        <div class="sched-list" id="sched-list"><div class="loading-text">Loading...</div></div>
       </div>
-      <div class="scheduled-list" id="scheduled-list">
-        <div class="loading">Loading scheduled messages...</div>
-      </div>
-    </div>
 
-    <!-- HISTORY -->
-    <div class="page" id="page-history">
-      <div class="page-header">
-        <h1>History & Reports</h1>
-        <p>Track all sent broadcasts</p>
+      <!-- HISTORY -->
+      <div class="page" id="pg-history">
+        <div class="ph"><div class="ph-left"><h1>History &amp; Reports</h1><p>Track all your broadcasts</p></div></div>
+        <div class="hist-stats" id="hist-stats"></div>
+        <div class="hist-list" id="hist-list"><div class="loading-text">Loading history...</div></div>
       </div>
-      <div class="history-stats" id="history-stats"></div>
-      <div class="history-list" id="history-list">
-        <div class="loading">Loading history...</div>
-      </div>
-    </div>
 
-    <!-- SETTINGS -->
-    <div class="page" id="page-settings">
-      <div class="page-header">
-        <h1>Settings</h1>
-        <p>Configure your broadcast tool</p>
-      </div>
-      <div class="settings-list" id="settings-list">
-        <div class="card settings-card">
+      <!-- SETTINGS -->
+      <div class="page" id="pg-settings">
+        <div class="ph"><div class="ph-left"><h1>Settings</h1><p>Configure the tool</p></div></div>
+        <div class="setting-group">
           <div class="setting-item">
-            <div class="setting-info">
-              <label>Message Delay (ms)</label>
-              <p>Delay between each group message. Recommended: 10000ms (10 seconds)</p>
-            </div>
-            <input type="number" class="setting-input" id="setting-delay" value="10000" min="3000" max="30000" step="1000" />
-            <button class="btn-small" onclick="saveSetting('message_delay', document.getElementById('setting-delay').value)">Save</button>
+            <div class="si-info"><label>Message Delay (ms)</label><p>Delay between each message. 10000 = 10 seconds recommended for safety</p></div>
+            <input class="si-input" type="number" id="st-delay" value="10000" min="3000" max="30000" step="1000"/>
+            <button class="btn btn-outline btn-sm" onclick="saveSetting('message_delay',document.getElementById('st-delay').value)">Save</button>
           </div>
           <div class="setting-item">
-            <div class="setting-info">
-              <label>Daily Send Limit</label>
-              <p>Maximum groups to message per day for safety</p>
-            </div>
-            <input type="number" class="setting-input" id="setting-limit" value="200" min="10" max="500" />
-            <button class="btn-small" onclick="saveSetting('daily_limit', document.getElementById('setting-limit').value)">Save</button>
+            <div class="si-info"><label>Daily Send Limit</label><p>Maximum messages per day for safety</p></div>
+            <input class="si-input" type="number" id="st-limit" value="200" min="10" max="500"/>
+            <button class="btn btn-outline btn-sm" onclick="saveSetting('daily_limit',document.getElementById('st-limit').value)">Save</button>
           </div>
           <div class="setting-item">
-            <div class="setting-info">
-              <label>WhatsApp Session</label>
-              <p>Disconnect and re-scan QR code</p>
-            </div>
-            <button class="btn-danger-small" onclick="logoutWA()">Logout WA</button>
+            <div class="si-info"><label>Disconnect WhatsApp</label><p>Logout from WhatsApp and re-scan QR code</p></div>
+            <button class="btn btn-danger btn-sm" onclick="confirmWALogout()">Disconnect</button>
           </div>
           <div class="setting-item">
-            <div class="setting-info">
-              <label>Change Password</label>
-              <p>Update admin password in .env file on server</p>
-            </div>
-            <span class="setting-note">Edit .env → ADMIN_PASSWORD</span>
+            <div class="si-info"><label>Change Password</label><p>Update in Render → Environment → ADMIN_PASSWORD</p></div>
+            <span class="si-code">ADMIN_PASSWORD=xxx</span>
           </div>
         </div>
       </div>
-    </div>
 
-  </main>
-</div>
+    </div><!-- /content -->
+  </div><!-- /main -->
+</div><!-- /app -->
 
 <!-- MODALS -->
-<div class="modal-overlay hidden" id="modal-overlay" onclick="closeModal()">
-  <div class="modal" id="modal" onclick="event.stopPropagation()">
-    <div class="modal-header">
-      <h3 id="modal-title">Modal</h3>
-      <button class="modal-close" onclick="closeModal()">✕</button>
-    </div>
-    <div class="modal-body" id="modal-body"></div>
+<div class="modal-bg" id="modal-bg" onclick="closeModal()">
+  <div class="modal" onclick="event.stopPropagation()">
+    <div class="modal-head"><h3 id="m-title">Modal</h3><button class="modal-close" onclick="closeModal()">✕</button></div>
+    <div class="modal-body" id="m-body"></div>
+    <div class="modal-foot hidden" id="m-foot"></div>
   </div>
 </div>
 
 <!-- QR MODAL -->
-<div class="modal-overlay hidden" id="qr-overlay">
-  <div class="modal qr-modal">
-    <div class="modal-header">
-      <h3>Scan QR Code</h3>
-      <button class="modal-close" onclick="document.getElementById('qr-overlay').classList.add('hidden')">✕</button>
-    </div>
-    <div class="modal-body qr-body">
-      <p>Open WhatsApp Business → Linked Devices → Link a Device</p>
-      <div id="qr-container">
-        <img id="qr-image" src="" alt="QR Code" />
-      </div>
-      <p class="qr-note">QR code expires in 60 seconds. It will auto-refresh.</p>
-    </div>
-  </div>
-</div>
-
-<!-- TOAST -->
-<div class="toast-container" id="toast-container"></div>
-
-<!-- CONFIRM DIALOG -->
-<div class="modal-overlay hidden" id="confirm-overlay">
-  <div class="modal confirm-modal">
+<div class="modal-bg" id="qr-bg">
+  <div class="modal qr-modal" onclick="event.stopPropagation()">
+    <div class="modal-head"><h3>Connect WhatsApp</h3><button class="modal-close" onclick="document.getElementById('qr-bg').classList.remove('open')">✕</button></div>
     <div class="modal-body">
-      <div class="confirm-icon" id="confirm-icon">⚠️</div>
-      <h3 id="confirm-title">Are you sure?</h3>
-      <p id="confirm-msg"></p>
-      <div class="confirm-actions">
-        <button class="btn-secondary" onclick="document.getElementById('confirm-overlay').classList.add('hidden')">Cancel</button>
-        <button class="btn-primary" id="confirm-ok">Confirm</button>
+      <div class="qr-wrap">
+        <p>Open <strong>WhatsApp Business</strong> → tap <strong>⋮ Menu</strong> → <strong>Linked Devices</strong> → <strong>Link a Device</strong></p>
+        <img id="qr-img" src="" alt="QR Code"/>
+        <p class="qr-note">QR refreshes automatically. Session saves after scan — no re-scan needed later.</p>
       </div>
     </div>
   </div>
 </div>
 
-<script src="/js/app.js"></script>
+<!-- CONFIRM -->
+<div class="modal-bg" id="cf-bg">
+  <div class="modal confirm-modal" onclick="event.stopPropagation()">
+    <div class="modal-body">
+      <div class="confirm-body">
+        <div class="confirm-ico" id="cf-ico">⚠️</div>
+        <h3 id="cf-title">Are you sure?</h3>
+        <p id="cf-msg"></p>
+        <div class="confirm-btns">
+          <button class="btn btn-outline" onclick="document.getElementById('cf-bg').classList.remove('open')">Cancel</button>
+          <button class="btn btn-primary" id="cf-ok">Confirm</button>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="toast-wrap" id="toasts"></div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/4.7.4/socket.io.min.js"></script>
 <script>
-  
+const socket = io();
+let curPage = 'dashboard', allGroups = [], sendTarget = 'all', selGroups = [], selMedia1 = null, selMedia2 = null, waOn = false, bcContacts = [], bcFile = null;
 
-// ===== GROUP CREATION FROM CSV =====
-socket.on('group-creation-start', (data) => { showGroupCreationProgress(data.total); });
-socket.on('group-creation-progress', (data) => { updateGroupCreationProgress(data); });
-socket.on('group-creation-done', (data) => {
-  const ok = data.results.filter(r=>r.success).length;
-  const fail = data.results.filter(r=>!r.success).length;
-  hideGroupCreationProgress();
-  toast('Done! Created ' + ok + ' groups, ' + fail + ' failed', ok>0?'success':'error');
-  loadGroups(); loadDashboard();
+// ===== INIT =====
+document.addEventListener('DOMContentLoaded', async () => {
+  const r = await api('/auth/status');
+  if (r.authenticated) showApp();
+  else showScreen('login-screen');
+  document.getElementById('pwd').onkeypress = e => e.key === 'Enter' && doLogin();
 });
-socket.on('group-creation-error', (data) => { hideGroupCreationProgress(); toast('Error: ' + data.error, 'error'); });
 
-function showCreateGroupsModal() {
-  showModal('Create Groups from CSV', `
-    <div style="background:var(--blue-dim);border:1px solid var(--blue);border-radius:8px;padding:14px;margin-bottom:16px;font-size:13px;color:var(--text2);line-height:1.6">
-      <strong style="color:var(--blue)">How it works:</strong><br/>
-      1. Upload all state CSV files at once<br/>
-      2. Tool creates one WhatsApp group per state<br/>
-      3. All contacts added automatically<br/>
-      4. Then create Community manually in WA Business
-    </div>
-    <label class="modal-label">Select All CSV Files</label>
-    <input type="file" id="csv-group-files" accept=".csv" multiple style="color:var(--text);width:100%;margin-bottom:8px" onchange="showCsvList(this)" />
-    <div id="csv-file-list"></div>
-    <div class="modal-actions">
-      <button class="btn-secondary" onclick="closeModal()">Cancel</button>
-      <button class="btn-primary" onclick="startGroupCreation()">Create Groups</button>
-    </div>
-  `);
+// ===== SOCKET =====
+socket.on('connection-update', updateWA);
+socket.on('send-start', d => showProg('send-prog','prog-bar','prog-count','prog-log',d.total));
+socket.on('send-progress', d => updateProg('prog-bar','prog-count','prog-log',d.current,d.total,d.group,d.status));
+socket.on('send-complete', d => { hideProg('send-prog'); toast('Sent: '+d.sent+', Failed: '+d.failed, d.failed>0?'info':'ok'); loadDash(); loadHistory(); });
+socket.on('send-error', d => { hideProg('send-prog'); toast(d.error,'err'); });
+socket.on('bc-start', d => showProg('bc-prog','bc-bar','bc-count','bc-log',d.total,'var(--green)'));
+socket.on('bc-progress', d => updateProg('bc-bar','bc-count','bc-log',d.current,d.total,d.name,d.status));
+socket.on('bc-complete', d => { hideProg('bc-prog'); toast('Broadcast done! Sent: '+d.sent+', Failed: '+d.failed,'ok'); });
+socket.on('bc-error', d => { hideProg('bc-prog'); toast(d.error,'err'); });
+socket.on('group-creation-start', d => showProg('gc-prog','gc-bar','gc-count','gc-log',d.total,'var(--purple)'));
+socket.on('group-creation-progress', d => updateProg('gc-bar','gc-count','gc-log',d.current,d.total,d.state,d.status,d.contacts));
+socket.on('group-creation-done', d => { hideProg('gc-prog'); const ok=d.results.filter(r=>r.success).length; toast('Created '+ok+' groups!','ok'); loadGroups(); loadDash(); });
+socket.on('group-creation-error', d => { hideProg('gc-prog'); toast(d.error,'err'); });
+socket.on('scheduled-sending-done', d => { toast('Scheduled sent! '+d.sent+' groups','ok'); loadSchedule(); });
+
+// ===== AUTH =====
+async function doLogin() {
+  const r = await api('/auth/login','POST',{password:document.getElementById('pwd').value});
+  if (r.success) showApp();
+  else { const e=document.getElementById('login-err'); e.style.display='block'; setTimeout(()=>e.style.display='none',3000); }
+}
+async function doLogout() {
+  await api('/auth/logout-app','POST');
+  showScreen('login-screen');
+  document.getElementById('pwd').value='';
 }
 
-function showCsvList(input) {
-  document.getElementById('csv-file-list').innerHTML = [...input.files].map(f =>
-    '<div style="font-size:12px;padding:3px 0;color:var(--text2)">📄 ' + f.name + '</div>'
-  ).join('');
+function showApp() {
+  showScreen('app-screen');
+  nav('dashboard');
+  loadAll();
+}
+
+function loadAll() { loadDash(); loadGroups(); loadTemplates(); }
+
+// ===== WA STATUS =====
+function updateWA(d) {
+  const dot = document.getElementById('wa-dot');
+  const lbl = document.getElementById('wa-label');
+  const sbDot = document.getElementById('sb-dot');
+  const mDot = document.getElementById('mob-dot');
+  const mLbl = document.getElementById('mob-wa-label');
+
+  [dot,sbDot,mDot].forEach(el => { if(el) el.className = 'wa-pill-dot'; el&&(el.className='wa-pill-dot'); });
+  sbDot.className = 'sb-wa-dot';
+
+  if (d.status === 'connected') {
+    [dot,mDot].forEach(el => el&&el.classList.add('on'));
+    sbDot.classList.add('on');
+    const name = d.user?.name || 'Connected';
+    lbl.textContent = name; if(mLbl) mLbl.textContent = name;
+    waOn = true;
+    document.getElementById('qr-bg').classList.remove('open');
+  } else if (d.status === 'qr') {
+    [dot,mDot].forEach(el => el&&el.classList.add('spin'));
+    sbDot.classList.add('spin');
+    lbl.textContent = 'Scan QR'; if(mLbl) mLbl.textContent = 'Scan QR';
+    if (d.qr) { document.getElementById('qr-img').src = d.qr; document.getElementById('qr-bg').classList.add('open'); }
+    waOn = false;
+  } else if (d.status === 'connecting') {
+    [dot,mDot].forEach(el => el&&el.classList.add('spin'));
+    sbDot.classList.add('spin');
+    lbl.textContent = 'Connecting...'; if(mLbl) mLbl.textContent = 'Connecting...';
+    waOn = false;
+  } else {
+    lbl.textContent = 'Disconnected'; if(mLbl) mLbl.textContent = 'Disconnected';
+    waOn = false;
+  }
+}
+
+function showQR() { document.getElementById('qr-bg').classList.add('open'); }
+
+async function confirmWALogout() {
+  confirm2('Disconnect WhatsApp?','You will need to scan QR code again.',async()=>{ await api('/wa/logout','POST'); toast('Disconnected','info'); });
+}
+
+// ===== NAVIGATION =====
+const pageTitles = {
+  dashboard:['Dashboard','Overview'], send:['Send to Groups','Broadcast to groups'],
+  broadcast:['Broadcast to Contacts','Send to individual contacts via CSV'],
+  groups:['Groups','Manage state-wise groups'], contacts:['Contacts','All your contacts'],
+  templates:['Templates','Saved messages'], schedule:['Scheduled Messages','Upcoming broadcasts'],
+  history:['History & Reports','Track all broadcasts'], settings:['Settings','Configure the tool']
+};
+
+function nav(page) {
+  document.querySelectorAll('.page').forEach(p=>p.classList.remove('active'));
+  document.querySelectorAll('.sb-item,.sf-item').forEach(b=>b.classList.remove('active'));
+  document.getElementById('pg-'+page)?.classList.add('active');
+  document.querySelectorAll('.sb-item,.sf-item').forEach(b=>{ if(b.getAttribute('onclick')?.includes("'"+page+"'")) b.classList.add('active'); });
+  const t = pageTitles[page]||[page,''];
+  document.getElementById('tb-title').textContent = t[0];
+  document.getElementById('tb-sub').textContent = t[1];
+  curPage = page;
+  if(page==='contacts') loadContacts();
+  if(page==='schedule') loadSchedule();
+  if(page==='history') loadHistory();
+  if(page==='settings') loadSettings();
+  if(page==='send') { loadSendPage(); }
+}
+
+function showMobSidebar() { document.getElementById('mob-sidebar').classList.add('open'); document.getElementById('mob-overlay').style.display='block'; }
+function hideMobSidebar() { document.getElementById('mob-sidebar').classList.remove('open'); document.getElementById('mob-overlay').style.display='none'; }
+
+// ===== DASHBOARD =====
+async function loadDash() {
+  const d = await api('/dashboard');
+  if (!d) return;
+  document.getElementById('s-groups').textContent = d.groups?.active||0;
+  document.getElementById('s-contacts').textContent = d.contacts?.total||0;
+  document.getElementById('s-sent').textContent = d.messages?.total_sent||0;
+  document.getElementById('s-sched').textContent = d.scheduled||0;
+  const hist = await api('/history?limit=5');
+  const el = document.getElementById('recent-list');
+  if (!hist?.messages?.length) { el.innerHTML='<div class="empty"><div class="empty-icon">📭</div><p>No messages sent yet</p></div>'; return; }
+  el.innerHTML = hist.messages.map(m=>`
+    <div class="g-item" style="margin-bottom:8px">
+      <div class="g-avatar">${m.media_type?'📎':'💬'}</div>
+      <div class="g-info">
+        <div class="g-name" style="font-size:13px">${esc(m.content||'[Media]').substring(0,60)}${(m.content||'').length>60?'...':''}</div>
+        <div class="g-meta"><span class="chip chip-gray">${fmtDate(m.sent_at)}</span><span class="chip chip-green">✓ ${m.sent_count||0}</span>${m.failed_count?'<span class="chip" style="background:var(--red-dim);color:var(--red)">✗ '+m.failed_count+'</span>':''}</div>
+      </div>
+      <span class="status-badge ${m.status==='completed'?'sb-done':m.status==='sending'?'sb-sending':'sb-fail'}">${m.status}</span>
+    </div>
+  `).join('');
+}
+
+// ===== GROUPS =====
+async function loadGroups() {
+  const d = await api('/groups');
+  if (!d) return;
+  allGroups = d.groups||[];
+  renderGroups(allGroups);
+}
+
+function renderGroups(gs) {
+  const el = document.getElementById('groups-list');
+  if (!gs.length) { el.innerHTML='<div class="empty"><div class="empty-icon">🏛️</div><p>No groups yet. Add groups or sync from WhatsApp.</p></div>'; return; }
+  el.innerHTML = gs.map(g=>`
+    <div class="g-item ${g.is_active?'':'off'}" id="gi-${g.id}">
+      <div class="g-avatar">🏛️</div>
+      <div class="g-info">
+        <div class="g-name">${esc(g.name)} ${g.whatsapp_id?'<span class="chip chip-green">✓ WA</span>':'<span class="chip chip-gray">Not linked</span>'}</div>
+        <div class="g-meta">
+          <span style="font-size:12px;color:var(--text3)">📍 ${g.state}</span>
+          <span style="font-size:12px;color:var(--text3)">👥 ${g.member_count||0}</span>
+          <span class="chip chip-blue">${g.tag||'general'}</span>
+          ${g.is_active?'':'<span class="chip chip-gray">disabled</span>'}
+        </div>
+      </div>
+      <div class="g-actions">
+        <button class="icon-btn ${g.is_active?'on':'off'}" onclick="toggleGroup(${g.id})" title="${g.is_active?'Disable':'Enable'}">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg>
+        </button>
+        <button class="icon-btn edit" onclick="editGroup(${g.id})" title="Edit">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M11 4H4a2 2 0 00-2 2v14a2 2 0 002 2h14a2 2 0 002-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 013 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>
+        </button>
+        <button class="icon-btn del" onclick="delGroup(${g.id})" title="Delete">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14a2 2 0 01-2 2H8a2 2 0 01-2-2L5 6"/><path d="M10 11v6M14 11v6"/></svg>
+        </button>
+      </div>
+    </div>
+  `).join('');
+}
+
+function filterGroups(q) { renderGroups(allGroups.filter(g=>g.name.toLowerCase().includes(q.toLowerCase())||g.state.toLowerCase().includes(q.toLowerCase()))); }
+
+async function toggleGroup(id) { await api('/groups/'+id+'/toggle','PATCH'); loadGroups(); }
+async function delGroup(id) {
+  confirm2('Delete group?','This removes it from the tool only — WhatsApp group is not affected.',async()=>{ await api('/groups/'+id,'DELETE'); loadGroups(); toast('Deleted','info'); });
+}
+
+function showAddGroupModal() {
+  openModal('Add Group',`
+    <div class="fgroup"><div class="flabel">Group Name</div><input class="finput" id="gn" placeholder="e.g. Rajasthan Cotton Network"/></div>
+    <div class="frow">
+      <div class="fgroup"><div class="flabel">State</div><select class="fselect" id="gs">${statesOpts()}</select></div>
+      <div class="fgroup"><div class="flabel">Tag</div><select class="fselect" id="gt"><option value="general">General</option><option value="priority">Priority</option><option value="state">State</option><option value="north">North</option><option value="south">South</option></select></div>
+    </div>
+    <div class="fgroup"><div class="flabel">WhatsApp Group ID <span style="color:var(--text3);font-weight:400">(optional)</span></div><input class="finput" id="gwid" placeholder="123456789@g.us"/></div>
+  `,`<button class="btn btn-outline" onclick="closeModal()">Cancel</button><button class="btn btn-primary" onclick="saveGroup()">Add Group</button>`);
+}
+
+async function editGroup(id) {
+  const g = allGroups.find(x=>x.id===id); if(!g) return;
+  openModal('Edit Group',`
+    <div class="fgroup"><div class="flabel">Group Name</div><input class="finput" id="gn" value="${esc(g.name)}"/></div>
+    <div class="frow">
+      <div class="fgroup"><div class="flabel">State</div><select class="fselect" id="gs">${statesOpts(g.state)}</select></div>
+      <div class="fgroup"><div class="flabel">Tag</div><select class="fselect" id="gt">${['general','priority','state','north','south'].map(t=>`<option value="${t}"${g.tag===t?' selected':''}>${t}</option>`).join('')}</select></div>
+    </div>
+  `,`<button class="btn btn-outline" onclick="closeModal()">Cancel</button><button class="btn btn-primary" onclick="updateGroup(${id})">Save</button>`);
+}
+
+async function saveGroup() {
+  const data={name:document.getElementById('gn').value.trim(),state:document.getElementById('gs').value,tag:document.getElementById('gt').value,whatsapp_id:document.getElementById('gwid')?.value||null,is_active:1,member_count:0};
+  if(!data.name) return toast('Name required','err');
+  const r=await api('/groups','POST',data);
+  if(r.success){closeModal();loadGroups();toast('Group added!','ok');}
+}
+async function updateGroup(id) {
+  const g=allGroups.find(x=>x.id===id);
+  const data={name:document.getElementById('gn').value.trim(),state:document.getElementById('gs').value,tag:document.getElementById('gt').value,is_active:g.is_active,member_count:g.member_count};
+  await api('/groups/'+id,'PUT',data);
+  closeModal();loadGroups();toast('Updated!','ok');
+}
+
+async function syncGroups() {
+  if(!waOn) return toast('WhatsApp not connected','err');
+  toast('Syncing groups from WhatsApp...','info');
+  const r=await api('/groups/sync','POST');
+  if(r.success){loadGroups();loadDash();toast('Synced! Added '+r.added+' groups','ok');}
+  else toast('Sync failed: '+r.error,'err');
+}
+
+// Group creation from CSV
+function showCreateGroupsModal() {
+  openModal('Create Groups from CSV',`
+    <div class="bc-info-box">
+      <strong>Auto-creates WhatsApp groups from your CSV files:</strong><br/>
+      1. Upload all state CSV files (Name, Phone format)<br/>
+      2. One group created per file automatically<br/>
+      3. All contacts added to their group<br/>
+      4. Then manually create a Community in WA Business and add these groups
+    </div>
+    <div class="fgroup">
+      <div class="flabel">Select All State CSV Files</div>
+      <input type="file" id="gc-files" accept=".csv" multiple style="color:var(--text);width:100%" onchange="showGcList(this)"/>
+    </div>
+    <div id="gc-file-list" style="margin-top:8px"></div>
+  `,`<button class="btn btn-outline" onclick="closeModal()">Cancel</button><button class="btn btn-primary" onclick="startGroupCreation()">🚀 Create Groups</button>`);
+}
+
+function showGcList(input) {
+  document.getElementById('gc-file-list').innerHTML = [...input.files].map(f=>'<div style="font-size:12px;padding:3px 0;color:var(--text2)">📄 '+f.name+'</div>').join('');
 }
 
 async function startGroupCreation() {
-  const files = document.getElementById('csv-group-files').files;
-  if (!files.length) return toast('Select CSV files first', 'error');
-  if (!waConnected) return toast('Connect WhatsApp first!', 'error');
-  const form = new FormData();
-  [...files].forEach(f => form.append('csvFiles', f));
+  const files=document.getElementById('gc-files').files;
+  if(!files.length) return toast('Select CSV files first','err');
+  if(!waOn) return toast('Connect WhatsApp first!','err');
+  const form=new FormData();
+  [...files].forEach(f=>form.append('csvFiles',f));
   closeModal();
-  toast('Creating ' + files.length + ' groups... Please wait', 'info');
-  const res = await apiFetch('/api/groups/create-from-csv', { method: 'POST', body: form });
-  const data = await res.json();
-  if (!data.success) toast('Error: ' + data.error, 'error');
+  toast('Creating '+files.length+' groups — this takes a few minutes...','info');
+  nav('groups');
+  const res=await fetch('/api/groups/create-from-csv',{method:'POST',body:form});
+  const d=await res.json();
+  if(!d.success) toast('Error: '+d.error,'err');
 }
 
-function showGroupCreationProgress(total) {
-  const card = document.createElement('div');
-  card.id = 'gc-card';
-  card.className = 'send-progress-card';
-  card.style.borderColor = 'var(--purple)';
-  card.innerHTML = '<div class="progress-header"><span style="color:var(--purple);font-weight:700">Creating Groups...</span><span class="progress-count" id="gc-count">0/' + total + '</span></div><div class="progress-bar-wrap"><div class="progress-bar" id="gc-bar" style="width:0%;background:linear-gradient(90deg,var(--purple),var(--blue))"></div></div><div class="progress-log" id="gc-log"></div>';
-  const pg = document.getElementById('page-groups');
-  pg.insertBefore(card, pg.children[2]);
+// ===== CONTACTS =====
+let allContacts=[];
+async function loadContacts() {
+  const d=await api('/contacts');
+  if(!d) return;
+  allContacts=d.contacts||[];
+  document.getElementById('ct-count-label').textContent = (d.stats?.total||0)+' total contacts';
+  renderContacts(allContacts.slice(0,100));
 }
 
-function updateGroupCreationProgress(data) {
-  const bar = document.getElementById('gc-bar');
-  const count = document.getElementById('gc-count');
-  const log = document.getElementById('gc-log');
-  if (!bar) return;
-  bar.style.width = ((data.current/data.total)*100) + '%';
-  count.textContent = data.current + '/' + data.total;
-  const item = document.createElement('div');
-  item.className = 'progress-log-item ' + (data.status==='done'?'success':data.status==='failed'?'failed':'');
-  item.textContent = (data.status==='done'?'✓ ':data.status==='failed'?'✗ ':'⏳ ') + data.state + (data.contacts?' ('+data.contacts+' contacts)':'');
-  log.insertBefore(item, log.firstChild);
+function renderContacts(cs) {
+  const el=document.getElementById('contacts-list');
+  if(!cs.length){el.innerHTML='<div class="empty"><div class="empty-icon">👤</div><p>No contacts found</p></div>';return;}
+  el.innerHTML=cs.map(c=>`
+    <div class="ct-item">
+      <div class="ct-av">👤</div>
+      <div class="ct-info"><div class="ct-name">${esc(c.name)}</div><div class="ct-phone">+${c.phone}</div></div>
+      <span class="chip chip-blue">${c.state||'Other'}</span>
+      <button class="icon-btn del" onclick="delContact(${c.id})"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14a2 2 0 01-2 2H8a2 2 0 01-2-2L5 6"/></svg></button>
+    </div>
+  `).join('')+(allContacts.length>100?`<div class="loading-text">Showing 100 of ${allContacts.length}</div>`:'');
 }
 
-function hideGroupCreationProgress() {
-  setTimeout(() => { const c = document.getElementById('gc-card'); if(c) c.remove(); }, 5000);
+function filterContacts(q){renderContacts((q?allContacts.filter(c=>c.name.toLowerCase().includes(q.toLowerCase())||c.phone.includes(q)):allContacts).slice(0,100));}
+async function delContact(id){await api('/contacts/'+id,'DELETE');loadContacts();toast('Deleted','info');}
+
+function showImportModal(){
+  openModal('Import Contacts (CSV)',`
+    <div style="background:var(--bg3);border-radius:var(--radius-sm);padding:12px;font-family:var(--mono);font-size:12px;color:var(--text2);margin-bottom:16px;line-height:1.8">Name,Phone<br/>Ramesh Sharma,919876543210</div>
+    <div class="fgroup"><div class="flabel">CSV File</div><input type="file" id="imp-csv" accept=".csv,.txt" style="color:var(--text);width:100%"/></div>
+  `,`<button class="btn btn-outline" onclick="closeModal()">Cancel</button><button class="btn btn-primary" onclick="doImport()">Import</button>`);
+}
+async function doImport(){
+  const f=document.getElementById('imp-csv').files[0];
+  if(!f) return toast('Select a file','err');
+  const form=new FormData(); form.append('file',f);
+  const res=await fetch('/api/contacts/bulk',{method:'POST',body:form});
+  const d=await res.json();
+  if(d.success){closeModal();loadContacts();toast('Imported '+d.imported+' contacts!','ok');}
+  else toast('Error: '+d.error,'err');
 }
 
-// Register Service Worker (PWA)
-  if ('serviceWorker' in navigator) {
-    window.addEventListener('load', () => {
-      navigator.serviceWorker.register('/sw.js')
-        .then(reg => console.log('✅ SW registered:', reg.scope))
-        .catch(err => console.log('SW error:', err));
-    });
-  }
+function showAddContactModal(){
+  openModal('Add Contact',`
+    <div class="fgroup"><div class="flabel">Name</div><input class="finput" id="cn" placeholder="Full Name"/></div>
+    <div class="fgroup"><div class="flabel">Phone (with country code)</div><input class="finput" id="cp" placeholder="919876543210"/></div>
+    <div class="frow">
+      <div class="fgroup"><div class="flabel">State</div><select class="fselect" id="cst">${statesOpts()}</select></div>
+      <div class="fgroup"><div class="flabel">Group</div><select class="fselect" id="cg"><option value="">No Group</option>${allGroups.map(g=>`<option value="${g.id}">${esc(g.name)}</option>`).join('')}</select></div>
+    </div>
+  `,`<button class="btn btn-outline" onclick="closeModal()">Cancel</button><button class="btn btn-primary" onclick="saveContact()">Add</button>`);
+}
+async function saveContact(){
+  const d={name:document.getElementById('cn').value.trim(),phone:document.getElementById('cp').value.replace(/\D/g,''),state:document.getElementById('cst').value,group_id:document.getElementById('cg').value||null};
+  if(!d.name||!d.phone) return toast('Name and phone required','err');
+  const r=await api('/contacts','POST',d);
+  if(r.success){closeModal();loadContacts();toast('Contact added!','ok');}
+}
 
-  // Handle ?page= URL param
-  const urlParams = new URLSearchParams(window.location.search);
-  const startPage = urlParams.get('page');
-  if (startPage) {
-    window.addEventListener('app-ready', () => showPage(startPage));
-  }
+// ===== TEMPLATES =====
+let allTpls=[];
+async function loadTemplates(){
+  allTpls=await api('/templates')||[];
+  renderTpls(allTpls);
+  updateTplPicker(allTpls);
+}
+function renderTpls(ts){
+  const el=document.getElementById('tpl-list');
+  if(!ts.length){el.innerHTML='<div class="empty" style="grid-column:1/-1"><div class="empty-icon">📝</div><p>No templates yet</p></div>';return;}
+  el.innerHTML=ts.map(t=>`
+    <div class="tpl-card">
+      <div class="tpl-name">📝 ${esc(t.title)} ${t.media_type?'<span class="chip chip-amber">📎</span>':''}</div>
+      <div class="tpl-body">${esc(t.content)}</div>
+      <div class="tpl-footer">
+        <button class="btn btn-outline btn-sm" onclick="useTpl(${t.id})">Use</button>
+        <button class="btn btn-danger btn-sm" onclick="delTpl(${t.id})">Delete</button>
+      </div>
+    </div>
+  `).join('');
+}
+function updateTplPicker(ts){
+  const p=document.getElementById('tpl-picker');
+  if(!p) return;
+  p.innerHTML='<option value="">— pick a template —</option>'+ts.map(t=>`<option value="${t.id}">${esc(t.title)}</option>`).join('');
+}
+async function applyTpl(id){
+  if(!id) return;
+  const t=allTpls.find(x=>x.id==id);
+  if(t){document.getElementById('send-msg').value=t.content;updateCharCount(document.getElementById('send-msg'),'cc1');toast('Template applied','ok');}
+}
+function useTpl(id){nav('send');setTimeout(()=>{document.getElementById('tpl-picker').value=id;applyTpl(id);},100);}
+async function delTpl(id){
+  confirm2('Delete template?','Cannot be undone.',async()=>{await api('/templates/'+id,'DELETE');loadTemplates();toast('Deleted','info');});
+}
+function showAddTplModal(){
+  openModal('New Template',`
+    <div class="fgroup"><div class="flabel">Title</div><input class="finput" id="tt" placeholder="e.g. Monthly Update"/></div>
+    <div class="fgroup"><div class="flabel">Message</div><textarea class="ftextarea" id="tc" placeholder="Your message..."></textarea></div>
+    <div class="fgroup"><div class="flabel">Attach Media (optional)</div><input type="file" id="tm" accept="image/*,video/*,.pdf,.doc,.docx" style="color:var(--text);width:100%"/></div>
+  `,`<button class="btn btn-outline" onclick="closeModal()">Cancel</button><button class="btn btn-primary" onclick="saveTpl()">Save</button>`);
+}
+async function saveTpl(){
+  const form=new FormData();
+  form.append('title',document.getElementById('tt').value.trim());
+  form.append('content',document.getElementById('tc').value.trim());
+  const m=document.getElementById('tm').files[0]; if(m) form.append('media',m);
+  if(!form.get('title')||!form.get('content')) return toast('Title and content required','err');
+  const res=await fetch('/api/templates',{method:'POST',body:form});
+  const d=await res.json();
+  if(d.success){closeModal();loadTemplates();toast('Template saved!','ok');}
+}
+
+// ===== SEND PAGE =====
+function loadSendPage(){
+  loadGroups().then(()=>renderSendGroups());
+  loadTemplates();
+  // Load quick templates sidebar
+  const el=document.getElementById('quick-tpls');
+  if(allTpls.length){el.innerHTML=allTpls.slice(0,5).map(t=>`<button onclick="useTpl(${t.id})" style="text-align:left;background:var(--bg3);border:1px solid var(--border);border-radius:8px;padding:10px;width:100%;color:var(--text2);font-size:12px;cursor:pointer;transition:all .2s" onmouseover="this.style.borderColor='var(--green)'" onmouseout="this.style.borderColor='var(--border)'">${esc(t.title)}</button>`).join('');}
+}
+
+function setTarget(t){
+  sendTarget=t;
+  document.getElementById('tgt-all').classList.toggle('active',t==='all');
+  document.getElementById('tgt-sel').classList.toggle('active',t==='select');
+  document.getElementById('group-selector').classList.toggle('hidden',t!=='select');
+  if(t==='all'){const n=allGroups.filter(g=>g.is_active).length;document.getElementById('target-info').textContent='All '+n+' active groups will receive this message';}
+  else{renderSendGroups();updateSelInfo();}
+}
+
+function renderSendGroups(q=''){
+  const el=document.getElementById('send-gl');
+  const gs=allGroups.filter(g=>g.is_active&&(!q||g.name.toLowerCase().includes(q.toLowerCase())));
+  if(!gs.length){el.innerHTML='<div style="color:var(--text3);padding:10px;text-align:center;font-size:13px">No groups found</div>';return;}
+  el.innerHTML=gs.map(g=>`
+    <div class="gs-item"><input type="checkbox" id="sg-${g.id}" value="${g.id}" onchange="updateSelInfo()" ${selGroups.includes(g.id)?'checked':''}/><label for="sg-${g.id}">${esc(g.name)} <span style="color:var(--text3)">· ${g.state}</span></label><span class="gs-count">👥${g.member_count||0}</span></div>
+  `).join('');
+}
+
+function filterSendGroups(q){renderSendGroups(q);}
+function updateSelInfo(){
+  selGroups=[...document.querySelectorAll('#send-gl input:checked')].map(c=>parseInt(c.value));
+  document.getElementById('target-info').textContent=selGroups.length?selGroups.length+' group(s) selected':'No groups selected';
+}
+
+function handleMedia(input,dropId,prevId){
+  const f=input.files[0]; if(!f) return;
+  if(dropId==='drop1') selMedia1=f; else selMedia2=f;
+  const drop=document.getElementById(dropId);
+  const prev=document.getElementById(prevId);
+  drop.classList.add('hidden');
+  prev.classList.remove('hidden');
+  const isImg=f.type.startsWith('image/');
+  prev.innerHTML=`<div class="media-prev">${isImg?`<img src="${URL.createObjectURL(f)}" alt="preview"/>`:'<div style="font-size:32px;flex-shrink:0">📄</div>'}<div class="media-prev-info"><div class="media-prev-name">${esc(f.name)}</div><div class="media-prev-size">${fmtSize(f.size)}</div></div><button class="btn btn-danger btn-sm" onclick="clearMedia('${dropId}','${prevId}','${input.id}')">✕ Remove</button></div>`;
+}
+
+function clearMedia(dropId,prevId,inputId){
+  document.getElementById(dropId).classList.remove('hidden');
+  document.getElementById(prevId).classList.add('hidden');
+  document.getElementById(prevId).innerHTML='';
+  document.getElementById(inputId).value='';
+  if(dropId==='drop1') selMedia1=null; else selMedia2=null;
+}
+
+function updateCharCount(el,id){document.getElementById(id).textContent=el.value.length+' characters';}
+
+async function confirmSend(){
+  const msg=document.getElementById('send-msg').value.trim();
+  if(!msg&&!selMedia1) return toast('Enter a message or attach a file','err');
+  if(sendTarget==='select'&&selGroups.length===0) return toast('Select at least one group','err');
+  if(!waOn) return toast('WhatsApp not connected!','err');
+  const n=sendTarget==='all'?allGroups.filter(g=>g.is_active).length:selGroups.length;
+  confirm2('Send Message?','This will send to '+n+' group(s).',doSend,'🚀');
+}
+
+async function doSend(){
+  const form=new FormData();
+  form.append('message',document.getElementById('send-msg').value.trim());
+  form.append('sendAll',sendTarget==='all'?'true':'false');
+  form.append('groupIds',JSON.stringify(selGroups));
+  if(selMedia1) form.append('media',selMedia1);
+  const res=await fetch('/api/send',{method:'POST',body:form});
+  const d=await res.json();
+  if(!d.success) toast('Error: '+d.error,'err');
+}
+
+// ===== BROADCAST TO CONTACTS (NEW) =====
+let bcParsed=[];
+function handleCSVUpload(input){
+  const f=input.files[0]; if(!f) return;
+  bcFile=f;
+  const reader=new FileReader();
+  reader.onload=e=>{
+    const lines=e.target.result.split('\n').filter(l=>l.trim());
+    bcParsed=[];
+    for(let i=1;i<lines.length;i++){
+      const p=lines[i].split(',');
+      if(p.length>=2){const phone=p[1].trim().replace(/\D/g,'');if(phone.length>=10)bcParsed.push({name:p[0].trim(),phone});}
+    }
+    const drop=document.getElementById('bc-drop');
+    drop.innerHTML=`<div style="padding:8px"><div style="font-size:24px;margin-bottom:8px">✅</div><p style="font-weight:700;color:var(--green)">${bcParsed.length} contacts loaded</p><p style="font-size:12px;color:var(--text3);margin-top:4px">${f.name}</p></div>`;
+    document.getElementById('bc-csv-info').textContent='Ready to broadcast to '+bcParsed.length+' contacts';
+  };
+  reader.readAsText(f);
+}
+
+async function startBroadcast(){
+  const msg=document.getElementById('bc-msg').value.trim();
+  if(!bcParsed.length) return toast('Upload a CSV file first','err');
+  if(!msg&&!selMedia2) return toast('Enter a message','err');
+  if(!waOn) return toast('WhatsApp not connected!','err');
+  confirm2('Start Broadcast?','This will send to '+bcParsed.length+' contacts individually. This may take a while.',async()=>{
+    const form=new FormData();
+    form.append('message',msg);
+    form.append('contacts',JSON.stringify(bcParsed));
+    if(selMedia2) form.append('media',selMedia2);
+    const res=await fetch('/api/broadcast-contacts',{method:'POST',body:form});
+    const d=await res.json();
+    if(!d.success) toast('Error: '+d.error,'err');
+    else toast('Broadcast started to '+bcParsed.length+' contacts!','info');
+  },'📲');
+}
+
+// ===== SCHEDULE =====
+async function loadSchedule(){
+  const d=await api('/schedule');
+  const el=document.getElementById('sched-list');
+  if(!d?.length){el.innerHTML='<div class="empty"><div class="empty-icon">⏰</div><p>No scheduled messages</p></div>';return;}
+  el.innerHTML=d.map(s=>{
+    const dt=new Date(s.schedule_time);
+    return `<div class="sched-item">
+      <div class="sched-time"><div class="sched-time-val">${dt.getHours().toString().padStart(2,'0')}:${dt.getMinutes().toString().padStart(2,'0')}</div><div class="sched-time-date">${dt.toLocaleDateString('en-IN')}</div></div>
+      <div class="sched-info">
+        <div class="sched-msg">${esc(s.content||'[Media]')}</div>
+        <div class="sched-meta">${JSON.parse(s.target_groups||'[]').includes('all')?'All groups':JSON.parse(s.target_groups||'[]').length+' groups'}${s.is_recurring?` <span class="chip chip-blue">🔁 ${s.recurring_type}</span>`:''}</div>
+      </div>
+      <button class="btn btn-danger btn-sm" onclick="cancelSched(${s.id})">Cancel</button>
+    </div>`;
+  }).join('');
+}
+
+async function cancelSched(id){
+  confirm2('Cancel schedule?','This cannot be undone.',async()=>{ await api('/schedule/'+id,'DELETE'); loadSchedule(); toast('Cancelled','info'); });
+}
+
+function showScheduleModal(){
+  const msg=document.getElementById('send-msg').value.trim();
+  if(!msg&&!selMedia1) return toast('Enter a message first','err');
+  const now=new Date(); now.setMinutes(now.getMinutes()+30);
+  openModal('Schedule Message',`
+    <div class="fgroup"><div class="flabel">Date &amp; Time</div><input type="datetime-local" class="finput" id="sch-t" value="${now.toISOString().slice(0,16)}"/></div>
+    <div class="fgroup"><div class="flabel">Repeat</div><select class="fselect" id="sch-r"><option value="">One-time only</option><option value="daily">Daily</option><option value="weekly">Weekly</option><option value="monthly">Monthly</option></select></div>
+  `,`<button class="btn btn-outline" onclick="closeModal()">Cancel</button><button class="btn btn-primary" onclick="saveSchedule()">Schedule</button>`);
+}
+
+async function saveSchedule(){
+  const form=new FormData();
+  form.append('message',document.getElementById('send-msg').value.trim());
+  form.append('scheduleTime',document.getElementById('sch-t').value);
+  form.append('sendAll',sendTarget==='all'?'true':'false');
+  form.append('groupIds',JSON.stringify(selGroups));
+  const r=document.getElementById('sch-r').value;
+  form.append('isRecurring',r?'true':'false');
+  if(r) form.append('recurringType',r);
+  if(selMedia1) form.append('media',selMedia1);
+  const res=await fetch('/api/schedule',{method:'POST',body:form});
+  const d=await res.json();
+  if(d.success){closeModal();toast('Scheduled!','ok');}
+  else toast('Error: '+d.error,'err');
+}
+
+// ===== HISTORY =====
+async function loadHistory(){
+  const d=await api('/history');
+  if(!d) return;
+  const s=d.stats||{};
+  document.getElementById('hist-stats').innerHTML=`
+    <div class="hs"><div class="hs-num" style="color:var(--blue)">${s.total||0}</div><div class="hs-label">Total Broadcasts</div></div>
+    <div class="hs"><div class="hs-num" style="color:var(--green)">${s.total_sent||0}</div><div class="hs-label">Groups Reached</div></div>
+    <div class="hs"><div class="hs-num" style="color:var(--red)">${s.total_failed||0}</div><div class="hs-label">Failed</div></div>
+    <div class="hs"><div class="hs-num" style="color:var(--amber)">${s.today||0}</div><div class="hs-label">Today</div></div>
+  `;
+  const el=document.getElementById('hist-list');
+  if(!d.messages?.length){el.innerHTML='<div class="empty"><div class="empty-icon">📊</div><p>No broadcast history yet</p></div>';return;}
+  el.innerHTML=d.messages.map(m=>`
+    <div class="hist-item">
+      <div class="hist-top">
+        <span style="font-weight:700;font-size:14px">${m.media_type?'📎 '+m.media_type.split('/')[0].toUpperCase()+' Message':'💬 Text Message'}</span>
+        <span class="status-badge ${m.status==='completed'?'sb-done':m.status==='sending'?'sb-sending':'sb-fail'}">${m.status}</span>
+      </div>
+      <div class="hist-msg">${esc((m.content||'').substring(0,200))}${(m.content||'').length>200?'...':''}</div>
+      <div class="hist-pills">
+        <span class="pill pill-ok">✓ ${m.sent_count||0} sent</span>
+        ${m.failed_count?'<span class="pill pill-fail">✗ '+m.failed_count+' failed</span>':''}
+        <span class="pill pill-time">${fmtDate(m.sent_at)}</span>
+      </div>
+    </div>
+  `).join('');
+}
+
+// ===== SETTINGS =====
+async function loadSettings(){
+  const d=await api('/settings');
+  if(d?.message_delay) document.getElementById('st-delay').value=d.message_delay;
+  if(d?.daily_limit) document.getElementById('st-limit').value=d.daily_limit;
+}
+async function saveSetting(k,v){await api('/settings','PUT',{key:k,value:v});toast('Saved!','ok');}
+
+// ===== PROGRESS =====
+function showProg(cardId,barId,countId,logId,total,color){
+  const card=document.getElementById(cardId);card.classList.add('show');
+  document.getElementById(barId).style.width='0%';
+  document.getElementById(countId).textContent='0/'+total;
+  document.getElementById(logId).innerHTML='';
+  if(color) document.getElementById(barId).style.background='linear-gradient(90deg,'+color+',var(--blue))';
+}
+function updateProg(barId,countId,logId,cur,tot,name,status,extra){
+  const pct=(cur/tot)*100;
+  document.getElementById(barId).style.width=pct+'%';
+  document.getElementById(countId).textContent=cur+'/'+tot;
+  const log=document.getElementById(logId);
+  const item=document.createElement('div');
+  item.className='plog-item '+(status==='done'||status==='success'?'ok':status==='failed'?'fail':'wait');
+  item.textContent=(status==='done'||status==='success'?'✓ ':status==='failed'?'✗ ':'⟳ ')+name+(extra?' ('+extra+')':'');
+  log.insertBefore(item,log.firstChild);
+}
+function hideProg(cardId){setTimeout(()=>document.getElementById(cardId)?.classList.remove('show'),4000);}
+
+// ===== MODAL =====
+function openModal(title,body,footer){
+  document.getElementById('m-title').textContent=title;
+  document.getElementById('m-body').innerHTML=body;
+  const f=document.getElementById('m-foot');
+  if(footer){f.innerHTML=footer;f.classList.remove('hidden');}else f.classList.add('hidden');
+  document.getElementById('modal-bg').classList.add('open');
+}
+function closeModal(){document.getElementById('modal-bg').classList.remove('open');}
+
+function confirm2(title,msg,cb,ico='⚠️'){
+  document.getElementById('cf-ico').textContent=ico;
+  document.getElementById('cf-title').textContent=title;
+  document.getElementById('cf-msg').textContent=msg;
+  document.getElementById('cf-ok').onclick=()=>{document.getElementById('cf-bg').classList.remove('open');cb();};
+  document.getElementById('cf-bg').classList.add('open');
+}
+
+// ===== TOAST =====
+function toast(msg,type='info'){
+  const icons={ok:'✅',err:'❌',info:'ℹ️'};
+  const t=document.createElement('div');
+  t.className='toast '+type;
+  t.innerHTML='<span>'+icons[type]+'</span><span>'+msg+'</span>';
+  document.getElementById('toasts').appendChild(t);
+  setTimeout(()=>t.remove(),4000);
+}
+
+// ===== API =====
+async function api(path,method='GET',body=null){
+  try{const o={method,headers:{'Content-Type':'application/json'}};if(body)o.body=JSON.stringify(body);const r=await fetch('/api'+path,o);return r.json();}catch(e){return null;}
+}
+
+// ===== UTILS =====
+function esc(s){if(!s)return'';return s.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');}
+function fmtDate(s){if(!s)return'';return new Date(s).toLocaleString('en-IN',{day:'2-digit',month:'short',hour:'2-digit',minute:'2-digit'});}
+function fmtSize(b){if(b<1024)return b+'B';if(b<1048576)return(b/1024).toFixed(1)+'KB';return(b/1048576).toFixed(1)+'MB';}
+function showScreen(id){document.querySelectorAll('.screen').forEach(s=>s.classList.remove('active'));document.getElementById(id)?.classList.add('active');}
+function statesOpts(sel=''){return['Andhra Pradesh','Arunachal Pradesh','Assam','Bihar','Chhattisgarh','Delhi','Goa','Gujarat','Haryana','Himachal Pradesh','Jharkhand','Karnataka','Kerala','Madhya Pradesh','Maharashtra','Manipur','Meghalaya','Mizoram','Nagaland','Odisha','Punjab','Rajasthan','Sikkim','Tamil Nadu','Telangana','Tripura','Uttar Pradesh','Uttarakhand','West Bengal','Chandigarh','Jammu & Kashmir','Ladakh','Puducherry','Other'].map(s=>`<option value="${s}"${s===sel?' selected':''}>${s}</option>`).join('');}
+
+// Service Worker
+if('serviceWorker'in navigator){window.addEventListener('load',()=>navigator.serviceWorker.register('/sw.js').catch(()=>{}));}
 </script>
 </body>
 </html>
